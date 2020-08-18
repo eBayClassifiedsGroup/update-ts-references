@@ -1,0 +1,5 @@
+{
+  "packages": ["workspace-a", "workspace-b", "shared/*", "utils/**"],
+  "version": "independent",
+  "npmClient": "npm"
+}
