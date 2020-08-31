@@ -19,3 +19,9 @@ or you add it as dev dependency and include it in the `postinstall` script in th
    "postinstall": "update-ts-references"
  },
 ```
+# License
+
+Copyright 2020 mobile.de
+Developer: Mirko Krushchke
+
+Use of this source code is governed by an MIT-style license that can be found in the LICENSE file or at https://opensource.org/licenses/MIT.
