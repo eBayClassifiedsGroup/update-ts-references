@@ -9,7 +9,7 @@
   "contributors": [
     {
       "name": "Mirko Kruschke",
-      "email": "mirko.kruschke@team.mobile.de"
+      "email": "mirko.kruschke@gmail.com"
     }
   ],
   "dependencies": {
@@ -31,6 +31,18 @@
   "engines": {
     "node": ">=10.0.0"
   },
+  "license": "MIT",
+  "keywords": [
+    "typescript",
+    "references",
+    "tool",
+    "util",
+    "yarn",
+    "workspaces",
+    "lerna",
+    "monorepo",
+    "packages"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/eBayClassifiedsGroup/update-ts-references.git"
