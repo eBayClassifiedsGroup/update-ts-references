@@ -1,6 +1,8 @@
 const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
+const ts = require('typescript');
+const readlineSync = require('readline-sync');
 
 const PACKAGE_JSON = 'package.json';
 const TS_CONFIG_JSON = 'tsconfig.json';
@@ -8,6 +10,7 @@ const TS_CONFIG_JSON = 'tsconfig.json';
 const defaultOptions = {
   cwd: process.cwd(),
   verbose: false,
+  discardComments: false,
   help: false,
 };
 
@@ -94,41 +97,51 @@ const getReferencesFromDependencies = (
     .sort((refA, refB) => (refA.path > refB.path ? 1 : -1));
 };
 
-const updateTsConfig = ({ packageDir }, references) => {
+const updateTsConfig = (
+  references,
+  discardComments,
+  { packageDir } = { packageDir: process.cwd() }
+) => {
   const tsconfigFilePath = path.join(packageDir, TS_CONFIG_JSON);
-  const tsconfig = require(tsconfigFilePath);
+  let pureJson = true;
+  try {
+    require(tsconfigFilePath);
+  } catch {
+    pureJson = false;
+  }
 
-  const newTsConfig = `${JSON.stringify(
-    {
-      ...tsconfig,
-      // TODO: new feature or to much?
-      // extends: `${path.relative(packageDir, process.cwd())}/tsconfig.base.json`,
-      references: references.length ? references : undefined,
-    },
-    null,
-    2
-  )}
+  const { config, error } = ts.readConfigFile(
+    tsconfigFilePath,
+    ts.sys.readFile
+  );
+
+  if (!error) {
+    if (pureJson === false && discardComments === false) {
+      if (
+        !readlineSync.keyInYN(
+          `Found comments in the tsconfig. ${tsconfigFilePath}
+Do you want to discard them and proceed?`
+        )
+      ) {
+        process.exit(0);
+      }
+    }
+    const newTsConfig = `${JSON.stringify(
+      {
+        ...config,
+        references: references.length ? references : undefined,
+      },
+      null,
+      2
+    )}
   `;
-  fs.writeFileSync(tsconfigFilePath, newTsConfig);
+    fs.writeFileSync(tsconfigFilePath, newTsConfig);
+  } else {
+    console.error(error);
+  }
 };
 
-const updateRootTsConfigReferences = (references) => {
-  const tsconfigFilePath = path.join(process.cwd(), TS_CONFIG_JSON);
-  const tsconfig = require(tsconfigFilePath);
-
-  const newTsConfig = `${JSON.stringify(
-    {
-      ...tsconfig,
-      references: references.length ? references : undefined,
-    },
-    null,
-    2
-  )}
-  `;
-  fs.writeFileSync(tsconfigFilePath, newTsConfig);
-};
-
-const execute = async ({ cwd, verbose }) => {
+const execute = async ({ cwd, verbose, discardComments }) => {
   // eslint-disable-next-line no-console
   console.log('updating tsconfigs');
   const packageJson = require(path.join(cwd, PACKAGE_JSON));
@@ -172,7 +185,7 @@ const execute = async ({ cwd, verbose }) => {
       if (verbose) {
         console.log(`references of ${packageName}`, references);
       }
-      updateTsConfig(packageEntry, references);
+      updateTsConfig(references, discardComments, packageEntry);
     } else {
       // eslint-disable-next-line no-console
       console.log(`NO ${TS_CONFIG_JSON} for ${packageName}`);
@@ -182,7 +195,7 @@ const execute = async ({ cwd, verbose }) => {
   if (verbose) {
     console.log('rootReferences', rootReferences);
   }
-  updateRootTsConfigReferences(rootReferences);
+  updateTsConfig(rootReferences, discardComments);
 };
 
 module.exports = { execute, defaultOptions };

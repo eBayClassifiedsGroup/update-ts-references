@@ -1,10 +1,14 @@
 {
   "name": "yarn-workspace",
   "version": "0.0.1",
+  "private": true,
   "workspaces": [
     "workspace-a",
     "workspace-b",
     "shared/*",
     "utils/**"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "latest"
+  }
 }

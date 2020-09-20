@@ -1,4 +1,7 @@
 {
   "name": "lerna",
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "devDependencies": {
+    "typescript": "3.8.3"
+  }
 }
