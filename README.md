@@ -8,7 +8,17 @@ There's a blog post that's a good introduction to it [Optimizing multi-package a
 
 You can just use it via npx
 
-`npx update-ts-references`
+```
+npx update-ts-references --help
+
+  Usage: update-ts-references [options]
+
+  Options:
+    --help        Show help
+    --cwd         Set working directory. Default: [current path]
+    --discardComments     Discards comments when updating tsconfigs. Default: false
+    --verbose     Show verbose output. Default: false
+```
 
 or you add it as dev dependency and include it in the `postinstall` script in the package.json
 
@@ -19,6 +29,14 @@ or you add it as dev dependency and include it in the `postinstall` script in th
    "postinstall": "update-ts-references"
  },
 ```
+
+## FAQ
+
+> Where are the comments from my tsconfig?
+
+_update-ts-references_ is **not** able to preserve comments in tsconfig files when it is updating the references. If you need comments for the case like, explaining why compiler options are set, please move this part including comments into a second file and use the `extends` functionallity (see [here](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html#tsconfig-bases)).
+
+
 # License
 
 Copyright 2020 mobile.de

@@ -7,7 +7,7 @@ const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
 const setup = async (rootFolder) => {
   try {
-    await execSh('npx update-ts-references', {
+    await execSh('npx update-ts-references --discardComments', {
       stdio: null,
       cwd: rootFolder,
     });
@@ -23,6 +23,9 @@ const tsconfigs = [
   [
     '.',
     {
+      compilerOptions: {
+        composite: true,
+      },
       files: [],
       references: [
         {

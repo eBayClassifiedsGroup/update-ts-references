@@ -9,6 +9,7 @@ const {
   verbose = defaultOptions.verbose,
   help = defaultOptions.help,
   h = defaultOptions.help,
+  discardComments = defaultOptions.discardComments,
 } = minimist(process.argv.slice(2));
 
 if (help || h) {
@@ -17,6 +18,7 @@ if (help || h) {
   Options:
     --help        Show help
     --cwd         Set working directory. Default: ${defaultOptions.cwd}
+    --discardComments     Discards comments when updating tsconfigs. Default: ${defaultOptions.discardComments}
     --verbose     Show verbose output. Default: ${defaultOptions.verbose}
   `);
   process.exit(0);
@@ -27,6 +29,7 @@ const run = async () => {
     await execute({
       cwd,
       verbose,
+      discardComments,
     });
   } catch (error) {
     console.error(error);
