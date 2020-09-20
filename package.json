@@ -1,6 +1,6 @@
 {
   "name": "update-ts-references",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "bin": "src/index.js",
   "scripts": {
     "lint": "eslint src tests",
