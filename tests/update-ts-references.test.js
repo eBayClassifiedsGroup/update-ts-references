@@ -2,6 +2,11 @@ const execSh = require('exec-sh').promise;
 const path = require('path');
 
 const rootFolderYarn = path.join(process.cwd(), 'test-run/yarn-ws');
+const rootFolderYarnCheck = path.join(process.cwd(), 'test-run/yarn-ws-check');
+const rootFolderYarnCheckNoChanges = path.join(
+  process.cwd(),
+  'test-run/yarn-ws-check-no-changes'
+);
 const rootFolderLerna = path.join(process.cwd(), 'test-run/lerna');
 const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
@@ -139,6 +144,55 @@ test('Support lerna', async () => {
 
     expect(
       require(path.join(rootFolderLerna, configPath, 'tsconfig.json'))
+    ).toEqual(config);
+  });
+});
+
+test('Detect changes with the --check option', async () => {
+  let errorCode = 0;
+  try {
+    await execSh('npx update-ts-references --check', {
+      stdio: null,
+      cwd: rootFolderYarnCheck,
+    });
+  } catch (e) {
+    errorCode = e.code;
+  }
+
+  expect(errorCode).toBe(6);
+
+  tsconfigs.forEach((tsconfig) => {
+    const [configPath] = tsconfig;
+
+    expect(
+      require(path.join(rootFolderYarnCheck, configPath, 'tsconfig.json'))
+        .references
+    ).toBeFalsy();
+  });
+});
+
+test('No changes detected with the --check option', async () => {
+  let errorCode = 0;
+  try {
+    await execSh('npx update-ts-references --check', {
+      stdio: null,
+      cwd: rootFolderYarnCheckNoChanges,
+    });
+  } catch (e) {
+    errorCode = e.code;
+  }
+
+  expect(errorCode).toBe(0);
+
+  tsconfigs.forEach((tsconfig) => {
+    const [configPath, config] = tsconfig;
+
+    expect(
+      require(path.join(
+        rootFolderYarnCheckNoChanges,
+        configPath,
+        'tsconfig.json'
+      ))
     ).toEqual(config);
   });
 });

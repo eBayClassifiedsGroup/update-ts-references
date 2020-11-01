@@ -14,6 +14,7 @@ npx update-ts-references --help
   Usage: update-ts-references [options]
 
   Options:
+    --check       Checks if updates would be necessary (without applying them)
     --help        Show help
     --cwd         Set working directory. Default: [current path]
     --discardComments     Discards comments when updating tsconfigs. Default: false
@@ -28,6 +29,11 @@ or you add it as dev dependency and include it in the `postinstall` script in th
  "scripts": {
    "postinstall": "update-ts-references"
  },
+ "husky": {
+    "hooks": {
+      "pre-push": "update-ts-references --check"
+    }
+  },
 ```
 
 ## FAQ
