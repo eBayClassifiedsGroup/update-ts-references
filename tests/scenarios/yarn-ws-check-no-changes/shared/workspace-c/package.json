@@ -1,0 +1,10 @@
+{
+  "name": "workspace-c",
+  "version": "1.0.0",
+  "dependencies": {
+    "cross-env": "5.0.5"
+  },
+  "peerDependencies": {
+    "foo-a": "1.0.0"
+  }
+}

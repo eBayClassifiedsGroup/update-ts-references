@@ -10,12 +10,14 @@ const {
   help = defaultOptions.help,
   h = defaultOptions.help,
   discardComments = defaultOptions.discardComments,
+  check = defaultOptions.check,
 } = minimist(process.argv.slice(2));
 
 if (help || h) {
   console.log(`
   Usage: update-ts-references [options]
   Options:
+    --check       Checks if updates would be necessary (without applying them)
     --help        Show help
     --cwd         Set working directory. Default: ${defaultOptions.cwd}
     --discardComments     Discards comments when updating tsconfigs. Default: ${defaultOptions.discardComments}
@@ -26,11 +28,16 @@ if (help || h) {
 
 const run = async () => {
   try {
-    await execute({
+    const changesCount = await execute({
       cwd,
       verbose,
       discardComments,
+      check,
     });
+
+    if (check && changesCount > 0) {
+      process.exit(changesCount);
+    }
   } catch (error) {
     console.error(error);
     process.exit(1);
