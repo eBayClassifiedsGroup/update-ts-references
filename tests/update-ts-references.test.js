@@ -2,6 +2,10 @@ const execSh = require('exec-sh').promise;
 const path = require('path');
 
 const rootFolderYarn = path.join(process.cwd(), 'test-run/yarn-ws');
+const rootFolderYarnNohoist = path.join(
+  process.cwd(),
+  'test-run/yarn-ws-nohoist'
+);
 const rootFolderYarnCheck = path.join(process.cwd(), 'test-run/yarn-ws-check');
 const rootFolderYarnCheckNoChanges = path.join(
   process.cwd(),
@@ -144,6 +148,18 @@ test('Support lerna', async () => {
 
     expect(
       require(path.join(rootFolderLerna, configPath, 'tsconfig.json'))
+    ).toEqual(config);
+  });
+});
+
+test('Support yarn workspaces with noHoist', async () => {
+  await setup(rootFolderYarnNohoist);
+
+  tsconfigs.forEach((tsconfig) => {
+    const [configPath, config] = tsconfig;
+
+    expect(
+      require(path.join(rootFolderYarnNohoist, configPath, 'tsconfig.json'))
     ).toEqual(config);
   });
 });

@@ -1,0 +1,19 @@
+{
+  "name": "yarn-workspace",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "workspace-a",
+      "workspace-b",
+      "shared/*",
+      "utils/**"
+    ],
+    "nohoist": [
+      "**"
+    ]
+  },
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}
