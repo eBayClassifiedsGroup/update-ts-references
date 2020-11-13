@@ -175,6 +175,10 @@ const execute = async ({ cwd, verbose, discardComments, check }) => {
     );
   }
 
+  if (!Array.isArray(workspaces)) {
+    workspaces = workspaces.packages;
+  }
+
   const packageFilePaths = await getAllPackageJsons(workspaces);
   if (verbose) {
     console.log('packageFilePaths', packageFilePaths);
