@@ -138,16 +138,15 @@ Do you want to discard them and proceed?`
     }
     if (!isEqual) {
       if (check === false) {
-        const newTsConfig = `${JSON.stringify(
+        const newTsConfig = JSON.stringify(
           {
             ...config,
             references: references.length ? references : undefined,
           },
           null,
           2
-        )}
-  `;
-        fs.writeFileSync(tsconfigFilePath, newTsConfig);
+        );
+        fs.writeFileSync(tsconfigFilePath, newTsConfig + '\n');
       }
       return 1;
     }
