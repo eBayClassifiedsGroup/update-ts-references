@@ -99,12 +99,18 @@ const getReferencesFromDependencies = (
     .sort((refA, refB) => (refA.path > refB.path ? 1 : -1));
 };
 
+const ensurePosixPathStyle = (reference) => ({
+  ...reference,
+  path: reference.path.split(path.sep).join(path.posix.sep),
+});
+
 const updateTsConfig = (
-  references,
+  win32OrPosixReferences,
   discardComments,
   check,
   { packageDir } = { packageDir: process.cwd() }
 ) => {
+  const references = (win32OrPosixReferences || []).map(ensurePosixPathStyle);
   const tsconfigFilePath = path.join(packageDir, TS_CONFIG_JSON);
   let pureJson = true;
   try {
@@ -131,7 +137,7 @@ Do you want to discard them and proceed?`
     }
     let isEqual = false;
     try {
-      assert.deepEqual(config.references || [], references || []);
+      assert.deepEqual(config.references || [], references);
       isEqual = true;
     } catch {
       // ignore me
