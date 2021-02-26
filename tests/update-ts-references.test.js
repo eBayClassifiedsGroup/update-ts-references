@@ -13,10 +13,11 @@ const rootFolderYarnCheckNoChanges = path.join(
 );
 const rootFolderLerna = path.join(process.cwd(), 'test-run/lerna');
 const compilerOptions = { outDir: 'dist', rootDir: 'src' };
-
+const pathSrc = path.resolve('src/index.js');
+console.log("--pathSrc", pathSrc);
 const setup = async (rootFolder) => {
   try {
-    await execSh('npx update-ts-references --discardComments', {
+    await execSh(`node ${pathSrc} --discardComments`, {
       stdio: null,
       cwd: rootFolder,
     });
@@ -167,7 +168,7 @@ test('Support yarn workspaces with noHoist', async () => {
 test('Detect changes with the --check option', async () => {
   let errorCode = 0;
   try {
-    await execSh('npx update-ts-references --check', {
+    await execSh(`node ${pathSrc} --check`, {
       stdio: null,
       cwd: rootFolderYarnCheck,
     });
@@ -190,7 +191,7 @@ test('Detect changes with the --check option', async () => {
 test('No changes detected with the --check option', async () => {
   let errorCode = 0;
   try {
-    await execSh('npx update-ts-references --check', {
+    await execSh(`node ${pathSrc} --check`, {
       stdio: null,
       cwd: rootFolderYarnCheckNoChanges,
     });

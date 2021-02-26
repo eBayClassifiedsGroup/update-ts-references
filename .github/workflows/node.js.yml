@@ -42,3 +42,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn
     - run: yarn test
+      env: 
+        NODE_DEBUG: child_process
