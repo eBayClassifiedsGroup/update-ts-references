@@ -2,6 +2,8 @@ const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
 const ts = require('typescript');
+const yaml = require('js-yaml');
+const minimatch = require('minimatch');
 const readlineSync = require('readline-sync');
 const assert = require('assert').strict;
 
@@ -17,8 +19,19 @@ const defaultOptions = {
 };
 
 const getAllPackageJsons = async (workspaces) => {
+  const ignoreGlobs = [];
+  const workspaceGlobs = [];
+
+  workspaces.forEach((workspaceGlob) => {
+    if (workspaceGlob.startsWith('!')) {
+      ignoreGlobs.push(workspaceGlob);
+    } else {
+      workspaceGlobs.push(workspaceGlob);
+    }
+  });
+
   return Promise.all(
-    workspaces.map(
+    workspaceGlobs.map(
       (workspace) =>
         new Promise((resolve, reject) => {
           glob(`${workspace}/${PACKAGE_JSON}`, (error, files) => {
@@ -39,7 +52,13 @@ const getAllPackageJsons = async (workspaces) => {
       )
     )
     .then((allPackages) =>
-      allPackages.filter((packageName) => !packageName.includes('node_modules'))
+      allPackages.filter(
+        (packageName) =>
+          ignoreGlobs.reduce((prev, actualPattern) => {
+            if (!prev) return prev;
+            return minimatch(packageName, actualPattern);
+          }, true) && !packageName.includes('node_modules')
+      )
     );
 };
 
@@ -172,6 +191,13 @@ const execute = async ({ cwd, verbose, discardComments, check }) => {
   if (!workspaces && fs.existsSync(path.join(cwd, 'lerna.json'))) {
     const lernaJson = require(path.join(cwd, 'lerna.json'));
     workspaces = lernaJson.packages;
+  }
+
+  if (!workspaces && fs.existsSync(path.join(cwd, 'pnpm-workspace.yaml'))) {
+    const pnpmConfig = yaml.load(
+      fs.readFileSync(path.join(cwd, 'pnpm-workspace.yaml'))
+    );
+    workspaces = pnpmConfig.packages;
   }
 
   if (!workspaces) {

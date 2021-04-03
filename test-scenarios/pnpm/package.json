@@ -1,0 +1,8 @@
+{
+  "name": "pnpm-workspace",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}
