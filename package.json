@@ -1,6 +1,6 @@
 {
   "name": "update-ts-references",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "bin": "src/index.js",
   "scripts": {
     "lint": "eslint src tests",
@@ -15,6 +15,8 @@
   "dependencies": {
     "@formatjs/cli": "^2.3.1",
     "glob": "^7.1.6",
+    "js-yaml": "^4.0.0",
+    "minimatch": "^3.0.4",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
     "readline-sync": "^1.4.10"
@@ -38,6 +40,7 @@
     "tool",
     "util",
     "yarn",
+    "pnpm",
     "workspaces",
     "lerna",
     "monorepo",
@@ -50,5 +53,12 @@
   "bugs": {
     "url": "https://github.com/eBayClassifiedsGroup/update-ts-references/issues"
   },
-  "homepage": "https://github.com/eBayClassifiedsGroup/update-ts-references"
+  "homepage": "https://github.com/eBayClassifiedsGroup/update-ts-references",
+  "jest": {
+    "verbose": true,
+    "modulePathIgnorePatterns": [
+      "<rootDir>/test-scenarios/",
+      "<rootDir>/test-run/"
+    ]
+  }
 }

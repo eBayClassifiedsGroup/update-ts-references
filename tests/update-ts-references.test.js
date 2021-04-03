@@ -6,6 +6,7 @@ const rootFolderYarnNohoist = path.join(
   process.cwd(),
   'test-run/yarn-ws-nohoist'
 );
+const rootFolderPnpm = path.join(process.cwd(), 'test-run/pnpm');
 const rootFolderYarnCheck = path.join(process.cwd(), 'test-run/yarn-ws-check');
 const rootFolderYarnCheckNoChanges = path.join(
   process.cwd(),
@@ -160,6 +161,18 @@ test('Support yarn workspaces with noHoist', async () => {
 
     expect(
       require(path.join(rootFolderYarnNohoist, configPath, 'tsconfig.json'))
+    ).toEqual(config);
+  });
+});
+
+test('Support pnpm workspaces', async () => {
+  await setup(rootFolderPnpm);
+
+  tsconfigs.forEach((tsconfig) => {
+    const [configPath, config] = tsconfig;
+
+    expect(
+      require(path.join(rootFolderPnpm, configPath, 'tsconfig.json'))
     ).toEqual(config);
   });
 });
