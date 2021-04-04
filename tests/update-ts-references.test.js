@@ -1,20 +1,31 @@
 const execSh = require('exec-sh').promise;
 const path = require('path');
+const fs = require('fs');
 
-const rootFolderYarn = path.join(process.cwd(), 'test-run/yarn-ws');
+const rootFolderYarn = path.join(process.cwd(), 'test-run', 'yarn-ws');
 const rootFolderYarnNohoist = path.join(
   process.cwd(),
-  'test-run/yarn-ws-nohoist'
+  'test-run',
+  'yarn-ws-nohoist'
 );
-const rootFolderYarnCheck = path.join(process.cwd(), 'test-run/yarn-ws-check');
+const rootFolderYarnCheck = path.join(
+  process.cwd(),
+  'test-run',
+  'yarn-ws-check'
+);
 const rootFolderYarnCheckNoChanges = path.join(
   process.cwd(),
-  'test-run/yarn-ws-check-no-changes'
+  'test-run',
+  'yarn-ws-check-no-changes'
 );
-const rootFolderLerna = path.join(process.cwd(), 'test-run/lerna');
+const rootFolderLerna = path.join(process.cwd(), 'test-run', 'lerna');
 const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
 const setup = async (rootFolder) => {
+  if (!fs.existsSync(rootFolder)) {
+    throw new Error(`folder is missing -> ${rootFolder}`);
+  }
+
   try {
     await execSh('npx update-ts-references --discardComments', {
       stdio: null,
