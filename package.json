@@ -1,5 +1,6 @@
 {
   "name": "update-ts-references",
+  "test":true,
   "version": "2.0.0",
   "bin": "src/index.js",
   "scripts": {
