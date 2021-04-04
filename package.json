@@ -1,6 +1,6 @@
 {
   "name": "update-ts-references",
-  "test":true,
+  "test": true,
   "version": "2.0.0",
   "bin": "src/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "devDependencies": {
     "eslint": "^7.7.0",
     "eslint-plugin-jest": "^23.20.0",
-    "exec-sh": "^0.3.4",
+    "exec-sh": "^0.4.0",
     "jest": "^26.4.0"
   },
   "peerDependencies": {
