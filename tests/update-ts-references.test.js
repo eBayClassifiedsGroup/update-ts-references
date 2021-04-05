@@ -29,108 +29,146 @@ const setup = async (rootFolder) => {
   }
 };
 
-const tsconfigs = [
-  [
-    '.',
-    {
-      compilerOptions: {
-        composite: true,
+const rootTsConfig = [
+  '.',
+  {
+    compilerOptions: {
+      composite: true,
+    },
+    files: [],
+    references: [
+      {
+        path: 'workspace-a',
       },
-      files: [],
-      references: [
-        {
-          path: 'workspace-a',
-        },
-        {
-          path: 'workspace-b',
-        },
-        {
-          path: 'shared/workspace-c',
-        },
-        {
-          path: 'shared/workspace-d',
-        },
-        {
-          path: 'utils/foos/foo-a',
-        },
-        {
-          path: 'utils/foos/foo-b',
-        },
-      ],
-    },
-  ],
-  [
-    './workspace-a',
-    {
-      compilerOptions,
-      references: [
-        {
-          path: '../utils/foos/foo-a',
-        },
-        {
-          path: '../workspace-b',
-        },
-      ],
-    },
-  ],
-  [
-    './workspace-b',
-    {
-      compilerOptions,
+      {
+        path: 'workspace-b',
+      },
+      {
+        path: 'shared/workspace-c',
+      },
+      {
+        path: 'shared/workspace-d',
+      },
+      {
+        path: 'utils/foos/foo-a',
+      },
+      {
+        path: 'utils/foos/foo-b',
+      },
+    ],
+  },
+];
 
-      references: [
-        {
-          path: '../utils/foos/foo-b',
-        },
-      ],
-    },
-  ],
-  [
-    './shared/workspace-c',
-    {
-      compilerOptions,
+const wsATsConfig = [
+  './workspace-a',
+  {
+    compilerOptions,
+    references: [
+      {
+        path: '../utils/foos/foo-a',
+      },
+      {
+        path: '../workspace-b',
+      },
+    ],
+  },
+];
 
-      references: [
-        {
-          path: '../../utils/foos/foo-a',
-        },
-      ],
-    },
-  ],
-  [
-    './shared/workspace-d',
-    {
-      compilerOptions,
+const wsBTsConfig = [
+  './workspace-b',
+  {
+    compilerOptions,
 
-      references: [
-        {
-          path: '../workspace-c',
-        },
-      ],
-    },
-  ],
-  [
-    './utils/foos/foo-a',
-    {
-      compilerOptions,
-      references: [
-        {
-          path: '../foo-b',
-        },
-      ],
-    },
-  ],
-  [
-    './utils/foos/foo-b',
-    {
-      compilerOptions,
-      references: undefined,
-    },
-  ],
+    references: [
+      {
+        path: '../utils/foos/foo-b',
+      },
+    ],
+  },
+];
+
+const wsCTsConfig = [
+  './shared/workspace-c',
+  {
+    compilerOptions,
+
+    references: [
+      {
+        path: '../../utils/foos/foo-a',
+      },
+    ],
+  },
+];
+
+const wsDTsConfig = [
+  './shared/workspace-d',
+  {
+    compilerOptions,
+
+    references: [
+      {
+        path: '../workspace-c',
+      },
+    ],
+  },
+];
+
+const fooATsConfig = [
+  './utils/foos/foo-a',
+  {
+    compilerOptions,
+    references: [
+      {
+        path: '../foo-b',
+      },
+    ],
+  },
+];
+
+const fooBTsConfig = [
+  './utils/foos/foo-b',
+  {
+    compilerOptions,
+    references: undefined,
+  },
+];
+
+const tsconfigs = [
+  rootTsConfig,
+  wsATsConfig,
+  wsBTsConfig,
+  wsCTsConfig,
+  wsDTsConfig,
+  fooATsConfig,
+  fooBTsConfig,
 ];
 
 test('Support yarn workspaces', async () => {
   await setup(rootFolderYarn);
+
+  const tsconfigs = [
+    rootTsConfig,
+    [
+      './workspace-a',
+      {
+        compilerOptions,
+        references: [
+          {
+            path: '../utils/foos/foo-a',
+            prepend: false,
+          },
+          {
+            path: '../workspace-b',
+          },
+        ],
+      },
+    ],
+    wsBTsConfig,
+    wsCTsConfig,
+    wsDTsConfig,
+    fooATsConfig,
+    fooBTsConfig,
+  ];
 
   tsconfigs.forEach((tsconfig) => {
     const [configPath, config] = tsconfig;

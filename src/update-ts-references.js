@@ -154,9 +154,17 @@ Do you want to discard them and proceed?`
         process.exit(0);
       }
     }
+
+    const currentReferences = config.references || [];
+
+    const mergedReferences = references.map((ref) => ({
+      ...ref,
+      ...currentReferences.find((currentRef) => currentRef.path === ref.path),
+    }));
+
     let isEqual = false;
     try {
-      assert.deepEqual(config.references || [], references);
+      assert.deepEqual(currentReferences, mergedReferences);
       isEqual = true;
     } catch {
       // ignore me
@@ -166,7 +174,7 @@ Do you want to discard them and proceed?`
         const newTsConfig = JSON.stringify(
           {
             ...config,
-            references: references.length ? references : undefined,
+            references: mergedReferences.length ? mergedReferences : undefined,
           },
           null,
           2
