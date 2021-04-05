@@ -4,7 +4,8 @@
   "bin": "src/index.js",
   "scripts": {
     "lint": "eslint src tests",
-    "test": "scripts/prepareTests.sh && jest tests "
+    "test": "scripts/prepareTests.sh && jest tests ",
+    "jest": "jest tests "
   },
   "contributors": [
     {

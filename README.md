@@ -38,10 +38,11 @@ or you add it as dev dependency and include it in the `postinstall` script in th
 
 ## FAQ
 
-> Why is my pnpm workspace alias not working?
+### Why is my pnpm workspace alias not working?
+
 _update-ts-references_ is currently not supporting [Referencing workspace packages through aliases](https://pnpm.js.org/workspaces#referencing-workspace-packages-through-aliases) yet. See issue #13 
 
-> Where are the comments from my tsconfig?
+### Where are the comments from my tsconfig?
 
 _update-ts-references_ is **not** able to preserve comments in tsconfig files when it is updating the references. If you need comments for the case like, explaining why compiler options are set, please move this part including comments into a second file and use the `extends` functionallity (see [here](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html#tsconfig-bases)).
 

@@ -26,18 +26,19 @@ jobs:
       - run: yarn
       - run: yarn test
 
-  # windows:
-  #   runs-on: windows-latest
+  windows:
+    runs-on: windows-latest
 
-  #   strategy:
-  #     matrix:
-  #       node-version: [14.x]
+    strategy:
+      matrix:
+        node-version: [14.x]
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Use Node.js ${{ matrix.node-version }} with windows
-  #       uses: actions/setup-node@v1
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #     - run: yarn
-  #     - run: yarn test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }} with windows
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn
+      - run: scripts\prepareTests.ps1
+      - run: yarn jest
