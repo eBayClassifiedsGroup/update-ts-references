@@ -3,3 +3,5 @@ scripts
 node_modules
 test-run
 test-scenarios
+.github
+*.log
