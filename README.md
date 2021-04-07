@@ -14,6 +14,7 @@ npx update-ts-references --help
   Usage: update-ts-references [options]
 
   Options:
+    --configName  The name of the config files which needs to be updated. Default: tsconfig.json
     --check       Checks if updates would be necessary (without applying them)
     --help        Show help
     --cwd         Set working directory. Default: [current path]

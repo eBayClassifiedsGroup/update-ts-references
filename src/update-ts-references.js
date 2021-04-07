@@ -8,9 +8,9 @@ const readlineSync = require('readline-sync');
 const assert = require('assert').strict;
 
 const PACKAGE_JSON = 'package.json';
-const TS_CONFIG_JSON = 'tsconfig.json';
 
 const defaultOptions = {
+  configName: 'tsconfig.json',
   cwd: process.cwd(),
   verbose: false,
   discardComments: false,
@@ -72,6 +72,7 @@ const getPackageNamesAndPackageDir = (packageFilePaths) =>
   }, new Map());
 
 const getReferencesFromDependencies = (
+  configName,
   { packageDir },
   packageName,
   packagesMap,
@@ -102,7 +103,7 @@ const getReferencesFromDependencies = (
     .reduce((referenceArray, dependency) => {
       if (packagesMap.has(dependency)) {
         const { packageDir: dependencyDir } = packagesMap.get(dependency);
-        if (fs.existsSync(path.join(dependencyDir, TS_CONFIG_JSON))) {
+        if (fs.existsSync(path.join(dependencyDir, configName))) {
           const relativePath = path.relative(packageDir, dependencyDir);
 
           return [
@@ -124,13 +125,14 @@ const ensurePosixPathStyle = (reference) => ({
 });
 
 const updateTsConfig = (
+  configName,
   win32OrPosixReferences,
   discardComments,
   check,
   { packageDir } = { packageDir: process.cwd() }
 ) => {
   const references = (win32OrPosixReferences || []).map(ensurePosixPathStyle);
-  const tsconfigFilePath = path.join(packageDir, TS_CONFIG_JSON);
+  const tsconfigFilePath = path.join(packageDir, configName);
   let pureJson = true;
   try {
     require(tsconfigFilePath);
@@ -189,7 +191,13 @@ Do you want to discard them and proceed?`
   }
 };
 
-const execute = async ({ cwd, verbose, discardComments, check }) => {
+const execute = async ({
+  cwd,
+  verbose,
+  discardComments,
+  check,
+  configName,
+}) => {
   let changesCount = 0;
   // eslint-disable-next-line no-console
   console.log('updating tsconfigs');
@@ -231,12 +239,13 @@ const execute = async ({ cwd, verbose, discardComments, check }) => {
   const rootReferences = [];
 
   packagesMap.forEach((packageEntry, packageName) => {
-    const tsconfigFilePath = path.join(packageEntry.packageDir, TS_CONFIG_JSON);
+    const tsconfigFilePath = path.join(packageEntry.packageDir, configName);
     if (fs.existsSync(tsconfigFilePath)) {
       rootReferences.push({
         path: path.relative(process.cwd(), packageEntry.packageDir),
       });
       const references = getReferencesFromDependencies(
+        configName,
         packageEntry,
         packageName,
         packagesMap,
@@ -246,6 +255,7 @@ const execute = async ({ cwd, verbose, discardComments, check }) => {
         console.log(`references of ${packageName}`, references);
       }
       changesCount += updateTsConfig(
+        configName,
         references,
         discardComments,
         check,
@@ -253,14 +263,19 @@ const execute = async ({ cwd, verbose, discardComments, check }) => {
       );
     } else {
       // eslint-disable-next-line no-console
-      console.log(`NO ${TS_CONFIG_JSON} for ${packageName}`);
+      console.log(`NO ${configName} for ${packageName}`);
     }
   });
 
   if (verbose) {
     console.log('rootReferences', rootReferences);
   }
-  changesCount += updateTsConfig(rootReferences, discardComments, check);
+  changesCount += updateTsConfig(
+    configName,
+    rootReferences,
+    discardComments,
+    check
+  );
 
   if (verbose) {
     console.log(`counted changes ${changesCount}`);
