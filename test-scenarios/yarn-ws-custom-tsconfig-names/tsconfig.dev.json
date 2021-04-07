@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "compilerOptions": {
+    /* Basic Options */
+    // "allowJs": true,
+    "composite": true
+  }
+}

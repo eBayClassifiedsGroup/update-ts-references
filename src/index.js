@@ -5,6 +5,7 @@ const minimist = require('minimist');
 const { execute, defaultOptions } = require('./update-ts-references');
 
 const {
+  configName = defaultOptions.configName,
   cwd = defaultOptions.cwd,
   verbose = defaultOptions.verbose,
   help = defaultOptions.help,
@@ -17,6 +18,7 @@ if (help || h) {
   console.log(`
   Usage: update-ts-references [options]
   Options:
+    --configName  The name of the config files which needs to be updated. Default: ${defaultOptions.configName}
     --check       Checks if updates would be necessary (without applying them)
     --help        Show help
     --cwd         Set working directory. Default: ${defaultOptions.cwd}
@@ -33,6 +35,7 @@ const run = async () => {
       verbose,
       discardComments,
       check,
+      configName,
     });
 
     if (check && changesCount > 0) {

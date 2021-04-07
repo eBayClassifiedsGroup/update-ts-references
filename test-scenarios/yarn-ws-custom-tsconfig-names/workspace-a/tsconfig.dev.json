@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [
+    {
+      "path": "../utils/foos/foo-a",
+      "prepend": false
+    },
+    {
+      "path": "../some/old/ref"
+    }
+  ]
+}

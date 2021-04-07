@@ -5,27 +5,44 @@ const fs = require('fs');
 const rootFolderYarn = path.join(process.cwd(), 'test-run', 'yarn-ws');
 const rootFolderYarnNohoist = path.join(
   process.cwd(),
-  'test-run', 'yarn-ws-nohoist'
+  'test-run',
+  'yarn-ws-nohoist'
 );
 const rootFolderPnpm = path.join(process.cwd(), 'test-run', 'pnpm');
-const rootFolderYarnCheck = path.join(process.cwd(), 'test-run', 'yarn-ws-check');
+const rootFolderYarnCheck = path.join(
+  process.cwd(),
+  'test-run',
+  'yarn-ws-check'
+);
 const rootFolderYarnCheckNoChanges = path.join(
   process.cwd(),
-  'test-run', 'yarn-ws-check-no-changes'
+  'test-run',
+  'yarn-ws-check-no-changes'
 );
 const rootFolderLerna = path.join(process.cwd(), 'test-run', 'lerna');
+const rootFolderConfigName = path.join(
+  process.cwd(),
+  'test-run',
+  'yarn-ws-custom-tsconfig-names'
+);
+
 const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
-const setup = async (rootFolder) => {
+const setup = async (rootFolder, configName) => {
   if (!fs.existsSync(rootFolder)) {
     throw new Error(`folder is missing -> ${rootFolder}`);
   }
 
   try {
-    await execSh('npx update-ts-references --discardComments', {
-      stdio: null,
-      cwd: rootFolder,
-    });
+    await execSh(
+      `npx update-ts-references --discardComments${
+        configName ? ` --configName ${configName}` : ''
+      }`,
+      {
+        stdio: null,
+        cwd: rootFolder,
+      }
+    );
   } catch (e) {
     console.log('Error: ', e);
     console.log('Stderr: ', e.stderr);
@@ -266,5 +283,42 @@ test('No changes detected with the --check option', async () => {
         'tsconfig.json'
       ))
     ).toEqual(config);
+  });
+});
+
+test('Support custom tsconfig names', async () => {
+  const configName = 'tsconfig.dev.json';
+  const rootFolder = rootFolderConfigName;
+  await setup(rootFolder, configName);
+
+  const tsconfigs = [
+    rootTsConfig,
+    [
+      './workspace-a',
+      {
+        compilerOptions,
+        references: [
+          {
+            path: '../utils/foos/foo-a',
+            prepend: false,
+          },
+          {
+            path: '../workspace-b',
+          },
+        ],
+      },
+    ],
+    wsBTsConfig,
+    wsCTsConfig,
+    wsDTsConfig,
+    fooATsConfig,
+    fooBTsConfig,
+  ];
+
+  tsconfigs.forEach((tsconfig) => {
+    const [configPath, config] = tsconfig;
+    expect(require(path.join(rootFolder, configPath, configName))).toEqual(
+      config
+    );
   });
 });
