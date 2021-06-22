@@ -8,6 +8,7 @@ const readlineSync = require('readline-sync');
 const assert = require('assert').strict;
 
 const PACKAGE_JSON = 'package.json';
+const TSCONFIG_JSON = 'tsconfig.json'
 
 const defaultOptions = {
   configName: 'tsconfig.json',
@@ -62,6 +63,15 @@ const getAllPackageJsons = async (workspaces) => {
     );
 };
 
+const detectTSConfig = (directory, configName) => {
+  let detectedConfig = fs.existsSync(path.join(directory, configName)) ? configName : null
+  if (configName !== TSCONFIG_JSON && detectedConfig === null) {
+    detectedConfig = fs.existsSync(path.join(directory, TSCONFIG_JSON)) ? TSCONFIG_JSON : null
+  }
+  return detectedConfig
+}
+
+
 const getPackageNamesAndPackageDir = (packageFilePaths) =>
   packageFilePaths.reduce((map, packageFilePath) => {
     const fullPackageFilePath = path.join(process.cwd(), packageFilePath);
@@ -103,13 +113,13 @@ const getReferencesFromDependencies = (
     .reduce((referenceArray, dependency) => {
       if (packagesMap.has(dependency)) {
         const { packageDir: dependencyDir } = packagesMap.get(dependency);
-        if (fs.existsSync(path.join(dependencyDir, configName))) {
-          const relativePath = path.relative(packageDir, dependencyDir);
-
+        const relativePath = path.relative(packageDir, dependencyDir);
+        const detectedConfig = detectTSConfig(dependencyDir, configName)
+        if (detectedConfig !== null) {
           return [
             ...referenceArray,
             {
-              path: relativePath,
+              path: detectedConfig !== TSCONFIG_JSON ? path.join(relativePath, detectedConfig) : relativePath,
             },
           ];
         }
@@ -149,8 +159,8 @@ const updateTsConfig = (
     if (check === false && pureJson === false && discardComments === false) {
       if (
         !readlineSync.keyInYN(
-          `Found comments in the tsconfig. ${tsconfigFilePath}
-Do you want to discard them and proceed?`
+          `Found comments in the tsconfig.${tsconfigFilePath}
+Do you want to discard them and proceed ? `
         )
       ) {
         process.exit(0);
@@ -239,10 +249,11 @@ const execute = async ({
   const rootReferences = [];
 
   packagesMap.forEach((packageEntry, packageName) => {
-    const tsconfigFilePath = path.join(packageEntry.packageDir, configName);
-    if (fs.existsSync(tsconfigFilePath)) {
+    const detectedConfig = detectTSConfig(packageEntry.packageDir, configName)
+
+    if (detectedConfig) {
       rootReferences.push({
-        path: path.relative(process.cwd(), packageEntry.packageDir),
+        path: path.join(path.relative(process.cwd(), packageEntry.packageDir), detectedConfig !== TSCONFIG_JSON ? detectedConfig : ''),
       });
       const references = getReferencesFromDependencies(
         configName,
@@ -255,7 +266,7 @@ const execute = async ({
         console.log(`references of ${packageName}`, references);
       }
       changesCount += updateTsConfig(
-        configName,
+        detectedConfig,
         references,
         discardComments,
         check,
@@ -263,7 +274,7 @@ const execute = async ({
       );
     } else {
       // eslint-disable-next-line no-console
-      console.log(`NO ${configName} for ${packageName}`);
+      console.log(`NO ${configName === TSCONFIG_JSON ? configName : `${configName} nor ${TSCONFIG_JSON}`} for ${packageName}`);
     }
   });
 
