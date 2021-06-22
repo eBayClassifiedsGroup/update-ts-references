@@ -5,7 +5,7 @@
   },
   "references": [
     {
-      "path": "../utils/foos/foo-a",
+      "path": "../utils/foos/foo-a/tsconfig.dev.json",
       "prepend": false
     },
     {

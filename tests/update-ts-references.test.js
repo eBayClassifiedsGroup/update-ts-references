@@ -36,10 +36,9 @@ const setup = async (rootFolder, configName) => {
   try {
     await execSh(
       `npx update-ts-references --discardComments${
-        configName ? ` --configName ${configName}` : ''
+      configName ? ` --configName ${configName}` : ''
       }`,
       {
-        stdio: null,
         cwd: rootFolder,
       }
     );
@@ -292,32 +291,92 @@ test('Support custom tsconfig names', async () => {
   await setup(rootFolder, configName);
 
   const tsconfigs = [
-    rootTsConfig,
+    [
+      '.',
+      {
+        compilerOptions: {
+          composite: true,
+        },
+        files: [],
+        references: [
+          {
+            path: 'workspace-a/tsconfig.dev.json',
+          },
+          {
+            path: 'workspace-b/tsconfig.dev.json',
+          },
+          {
+            path: 'shared/workspace-c/tsconfig.dev.json',
+          },
+          {
+            path: 'shared/workspace-d/tsconfig.dev.json',
+          },
+          {
+            path: 'utils/foos/foo-a/tsconfig.dev.json',
+          },
+          {
+            path: 'utils/foos/foo-b',
+          },
+        ],
+      },
+    ],
     [
       './workspace-a',
       {
         compilerOptions,
         references: [
           {
-            path: '../utils/foos/foo-a',
+            path: '../utils/foos/foo-a/tsconfig.dev.json',
             prepend: false,
           },
           {
-            path: '../workspace-b',
+            path: '../workspace-b/tsconfig.dev.json',
           },
         ],
       },
     ],
     wsBTsConfig,
-    wsCTsConfig,
-    wsDTsConfig,
-    fooATsConfig,
-    fooBTsConfig,
+    [
+      './shared/workspace-c',
+      {
+        compilerOptions,
+
+        references: [
+          {
+            path: '../../utils/foos/foo-a/tsconfig.dev.json',
+          },
+        ],
+      },
+    ],
+    [
+      './shared/workspace-d',
+      {
+        compilerOptions,
+
+        references: [
+          {
+            path: '../workspace-c/tsconfig.dev.json',
+          },
+        ],
+      },
+    ],
+    [
+      './utils/foos/foo-a',
+      {
+        compilerOptions,
+        references: [
+          {
+            path: '../foo-b',
+          },
+        ],
+      },
+    ],
+    [...fooBTsConfig, 'tsconfig.json'],
   ];
 
   tsconfigs.forEach((tsconfig) => {
-    const [configPath, config] = tsconfig;
-    expect(require(path.join(rootFolder, configPath, configName))).toEqual(
+    const [configPath, config, configNameOverride] = tsconfig;
+    expect(require(path.join(rootFolder, configPath, configNameOverride || configName))).toEqual(
       config
     );
   });
