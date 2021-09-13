@@ -105,7 +105,7 @@ const getReferencesFromDependencies = (
 
   if (Object.keys(mergedDependencies).includes(packageName)) {
     throw new Error(
-      `This package ${packageName} references itself, please check dependencies in package.json`
+      `This package ${packageName} references itself, please check dependencies in package.json`
     );
   }
 
@@ -146,7 +146,7 @@ const updateTsConfig = (
   let pureJson = true;
   try {
     require(tsconfigFilePath);
-  } catch {
+  } catch (e) {
     pureJson = false;
   }
 
@@ -178,7 +178,7 @@ Do you want to discard them and proceed ? `
     try {
       assert.deepEqual(currentReferences, mergedReferences);
       isEqual = true;
-    } catch {
+    } catch (e) {
       // ignore me
     }
     if (!isEqual) {
