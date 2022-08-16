@@ -168,11 +168,17 @@ Do you want to discard them and proceed ? `
     }
 
     const currentReferences = config.references || [];
+    const localReferences = currentReferences.filter(it => it.path.startsWith('./') || !it.path.startsWith('.'))
 
-    const mergedReferences = references.map((ref) => ({
-      ...ref,
-      ...currentReferences.find((currentRef) => currentRef.path === ref.path),
-    }));
+    const mergedReferences = [
+      // Filter local references that are not in the generated reference list.
+      ...localReferences.filter((localRef) => references.findIndex((ref) => ref.path === localRef.path) === -1),
+      // Merge items in the generated reference list with current items.
+      ...references.map((ref) => ({
+        ...ref,
+        ...currentReferences.find((currentRef) => currentRef.path === ref.path),
+      })),
+    ];
 
     let isEqual = false;
     try {

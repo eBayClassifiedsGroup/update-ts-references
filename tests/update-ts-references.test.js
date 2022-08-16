@@ -111,9 +111,10 @@ const wsBTsConfig = [
 const wsCTsConfig = [
   './shared/workspace-c',
   {
-    compilerOptions,
-
     references: [
+      {
+        path: './tsconfig.default.json',
+      },
       {
         path: '../../utils/foos/foo-a',
       },
