@@ -166,7 +166,7 @@ const tsconfigs = [
 
 const WINDOWS_SPECIAL_TIMEOUT = 20000;
 
-test('Support yarn workspaces', async () => {
+test('Support yarn and npm workspaces', async () => {
   await setup(rootFolderYarn);
 
   const tsconfigs = [
@@ -214,7 +214,7 @@ test('Support lerna', async () => {
   });
 });
 
-test('Support yarn workspaces with noHoist', async () => {
+test('Support yarn and npm workspaces with noHoist', async () => {
   await setup(rootFolderYarnNohoist);
 
   tsconfigs.forEach((tsconfig) => {
