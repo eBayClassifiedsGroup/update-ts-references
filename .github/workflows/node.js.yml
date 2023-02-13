@@ -41,4 +41,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn
       - run: scripts\prepareTests.ps1
-      - run: yarn jest
+      - run: yarn jest --testTimeout 15000

@@ -35,7 +35,7 @@ const setup = async (rootFolder, configName) => {
 
   try {
     await execSh(
-      `npx update-ts-references --discardComments${
+      `npx update-ts-references --verbose --discardComments${
       configName ? ` --configName ${configName}` : ''
       }`,
       {
@@ -164,6 +164,8 @@ const tsconfigs = [
   fooBTsConfig,
 ];
 
+const WINDOWS_SPECIAL_TIMEOUT = 20000;
+
 test('Support yarn workspaces', async () => {
   await setup(rootFolderYarn);
 
@@ -198,7 +200,7 @@ test('Support yarn workspaces', async () => {
       require(path.join(rootFolderYarn, configPath, 'tsconfig.json'))
     ).toEqual(config);
   });
-});
+}, WINDOWS_SPECIAL_TIMEOUT);
 
 test('Support lerna', async () => {
   await setup(rootFolderLerna);
