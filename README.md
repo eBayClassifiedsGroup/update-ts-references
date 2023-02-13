@@ -1,10 +1,9 @@
-# update-ts-references
-
 [![Test](https://github.com/eBayClassifiedsGroup/update-ts-references/actions/workflows/node.js.yml/badge.svg)](https://github.com/eBayClassifiedsGroup/update-ts-references/actions/workflows/node.js.yml)
 
-If your repository is a multi package repository (via [lerna.js](https://lerna.js.org/), [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/) or [pnpm workspaces](https://pnpm.js.org/workspaces)) in combination with [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) from TypeScript, this tool will be very helpful by reading dependencies out of the _package.json_ and applying them to the _tsconfig.json_ as references.
+# update-ts-references
+If your repository is a multi package repository (via [lerna.js](https://lerna.js.org/), [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/), [pnpm workspaces](https://pnpm.js.org/workspaces) or since v7 [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)) in combination with [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) from TypeScript, this tool will be very helpful by reading dependencies out of the _package.json_ and applying them to the _tsconfig.json_ as references.
 
-There's a blog post that's a good introduction to it [Optimizing multi-package apps with TypeScript Project References](https://ebaytech.berlin/optimizing-multi-package-apps-with-typescript-project-references-d5c57a3b4440).
+There's a blog post that's a good introduction to it [Optimizing multi-package apps with TypeScript Project References](https://medium.com/berlin-tech-blog/optimizing-multi-package-apps-with-typescript-project-references-d5c57a3b4440).
 
 ## Usage
 
@@ -52,7 +51,7 @@ _update-ts-references_ is **not** able to preserve comments in tsconfig files wh
 
 # License
 
-Copyright 2020 mobile.de
+Copyright 2023 mobile.de
 Developer: Mirko Kruschke
 
 Use of this source code is governed by an MIT-style license that can be found in the LICENSE file or at https://opensource.org/licenses/MIT.
