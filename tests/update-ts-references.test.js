@@ -164,43 +164,41 @@ const tsconfigs = [
   fooBTsConfig,
 ];
 
-const WINDOWS_SPECIAL_TIMEOUT = 20000;
+const tsconfigsIncludingPrepend = [
+  rootTsConfig,
+  [
+    './workspace-a',
+    {
+      compilerOptions,
+      references: [
+        {
+          path: '../utils/foos/foo-a',
+          prepend: false,
+        },
+        {
+          path: '../workspace-b',
+        },
+      ],
+    },
+  ],
+  wsBTsConfig,
+  wsCTsConfig,
+  wsDTsConfig,
+  fooATsConfig,
+  fooBTsConfig,
+];
 
 test('Support yarn and npm workspaces', async () => {
   await setup(rootFolderYarn);
 
-  const tsconfigs = [
-    rootTsConfig,
-    [
-      './workspace-a',
-      {
-        compilerOptions,
-        references: [
-          {
-            path: '../utils/foos/foo-a',
-            prepend: false,
-          },
-          {
-            path: '../workspace-b',
-          },
-        ],
-      },
-    ],
-    wsBTsConfig,
-    wsCTsConfig,
-    wsDTsConfig,
-    fooATsConfig,
-    fooBTsConfig,
-  ];
-
-  tsconfigs.forEach((tsconfig) => {
+  tsconfigsIncludingPrepend.forEach((tsconfig) => {
     const [configPath, config] = tsconfig;
 
     expect(
       require(path.join(rootFolderYarn, configPath, 'tsconfig.json'))
     ).toEqual(config);
   });
-}, WINDOWS_SPECIAL_TIMEOUT);
+});
 
 test('Support lerna', async () => {
   await setup(rootFolderLerna);
