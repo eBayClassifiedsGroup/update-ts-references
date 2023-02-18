@@ -1,11 +1,12 @@
 {
   "name": "update-ts-references",
-  "version": "2.5.0",
+  "version": "2.5.1",
+  "description": "Updates TypeScript references automatically while using workspaces",
   "bin": "src/index.js",
   "scripts": {
     "lint": "eslint src tests",
-    "test": "scripts/prepareTests.sh && jest tests ",
-    "jest": "jest tests "
+    "test": "scripts/prepareTests.sh && jest tests",
+    "jest": "jest tests"
   },
   "contributors": [
     {
@@ -36,7 +37,7 @@
     "typescript": ">=3.8.0"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=14.0.0"
   },
   "license": "MIT",
   "keywords": [
@@ -49,7 +50,9 @@
     "workspaces",
     "lerna",
     "monorepo",
-    "packages"
+    "packages",
+    "npm",
+    "automatic"
   ],
   "repository": {
     "type": "git",

@@ -1,3 +1,5 @@
+.nvmrc
+.idea
 tests
 scripts
 node_modules
