@@ -7,3 +7,5 @@ test-run
 test-scenarios
 .github
 *.log
+.vscode
+.eslintrc.js

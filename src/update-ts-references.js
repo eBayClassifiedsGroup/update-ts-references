@@ -1,10 +1,13 @@
 const glob = require('glob');
 const path = require('path');
 const fs = require('fs');
-const ts = require('typescript');
 const yaml = require('js-yaml');
 const minimatch = require('minimatch');
-const readlineSync = require('readline-sync');
+const {
+  parse,
+  stringify,
+  assign
+} = require('comment-json')
 const assert = require('assert').strict;
 
 const PACKAGE_JSON = 'package.json';
@@ -14,7 +17,6 @@ const defaultOptions = {
   configName: 'tsconfig.json',
   cwd: process.cwd(),
   verbose: false,
-  discardComments: false,
   help: false,
   check: false,
 };
@@ -137,35 +139,14 @@ const ensurePosixPathStyle = (reference) => ({
 const updateTsConfig = (
   configName,
   win32OrPosixReferences,
-  discardComments,
   check,
   { packageDir } = { packageDir: process.cwd() }
 ) => {
   const references = (win32OrPosixReferences || []).map(ensurePosixPathStyle);
   const tsconfigFilePath = path.join(packageDir, configName);
-  let pureJson = true;
+
   try {
-    require(tsconfigFilePath);
-  } catch (e) {
-    pureJson = false;
-  }
-
-  const { config, error } = ts.readConfigFile(
-    tsconfigFilePath,
-    ts.sys.readFile
-  );
-
-  if (!error) {
-    if (check === false && pureJson === false && discardComments === false) {
-      if (
-        !readlineSync.keyInYN(
-          `Found comments in the tsconfig.${tsconfigFilePath}
-Do you want to discard them and proceed ? `
-        )
-      ) {
-        process.exit(0);
-      }
-    }
+    const config = parse(fs.readFileSync(tsconfigFilePath).toString());
 
     const currentReferences = config.references || [];
 
@@ -176,27 +157,24 @@ Do you want to discard them and proceed ? `
 
     let isEqual = false;
     try {
-      assert.deepEqual(currentReferences, mergedReferences);
+      assert.deepEqual(JSON.parse(JSON.stringify(currentReferences)), mergedReferences);
       isEqual = true;
     } catch (e) {
       // ignore me
     }
     if (!isEqual) {
       if (check === false) {
-        const newTsConfig = JSON.stringify(
+        const newTsConfig = assign(config,
           {
-            ...config,
             references: mergedReferences.length ? mergedReferences : undefined,
-          },
-          null,
-          2
+          }
         );
-        fs.writeFileSync(tsconfigFilePath, newTsConfig + '\n');
+        fs.writeFileSync(tsconfigFilePath, stringify(newTsConfig, null, 2) + '\n');
       }
       return 1;
     }
     return 0;
-  } else {
+  } catch (error) {
     console.error(`could not read ${tsconfigFilePath}`, error);
   }
 };
@@ -204,7 +182,6 @@ Do you want to discard them and proceed ? `
 const execute = async ({
   cwd,
   verbose,
-  discardComments,
   check,
   configName,
 }) => {
@@ -228,7 +205,7 @@ const execute = async ({
 
   if (!workspaces) {
     throw new Error(
-      'could not detect yarn workspaces or lerna in this repository'
+      'could not detect yarn/npm/pnpm workspaces or lerna in this repository'
     );
   }
 
@@ -268,7 +245,6 @@ const execute = async ({
       changesCount += updateTsConfig(
         detectedConfig,
         references,
-        discardComments,
         check,
         packageEntry
       );
@@ -284,7 +260,6 @@ const execute = async ({
   changesCount += updateTsConfig(
     configName,
     rootReferences,
-    discardComments,
     check
   );
 
