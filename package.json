@@ -1,6 +1,6 @@
 {
   "name": "update-ts-references",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Updates TypeScript references automatically while using workspaces",
   "bin": "src/index.js",
   "scripts": {
@@ -25,8 +25,7 @@
     "js-yaml": "^4.0.0",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.5",
-    "mkdirp": "^1.0.4",
-    "readline-sync": "^1.4.10"
+    "mkdirp": "^1.0.4"
   },
   "devDependencies": {
     "eslint": "^7.7.0",
