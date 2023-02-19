@@ -19,7 +19,6 @@ npx update-ts-references --help
     --check       Checks if updates would be necessary (without applying them)
     --help        Show help
     --cwd         Set working directory. Default: [current path]
-    --discardComments     Discards comments when updating tsconfigs. Default: false
     --verbose     Show verbose output. Default: false
 ```
 
@@ -43,11 +42,6 @@ or you add it as dev dependency and include it in the `postinstall` script in th
 ### Why is my pnpm workspace alias not working?
 
 _update-ts-references_ is currently not supporting [Referencing workspace packages through aliases](https://pnpm.js.org/workspaces#referencing-workspace-packages-through-aliases) yet. See issue #13 
-
-### Where are the comments from my tsconfig?
-
-_update-ts-references_ is **not** able to preserve comments in tsconfig files when it is updating the references. If you need comments for the case like, explaining why compiler options are set, please move this part including comments into a second file and use the `extends` functionallity (see [here](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html#tsconfig-bases)).
-
 
 # License
 

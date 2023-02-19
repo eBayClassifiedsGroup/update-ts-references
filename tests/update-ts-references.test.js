@@ -1,6 +1,7 @@
 const execSh = require('exec-sh').promise;
 const path = require('path');
 const fs = require('fs');
+const { parse } = require("comment-json")
 
 const rootFolderYarn = path.join(process.cwd(), 'test-run', 'yarn-ws');
 const rootFolderYarnNohoist = path.join(
@@ -35,7 +36,7 @@ const setup = async (rootFolder, configName) => {
 
   try {
     await execSh(
-      `npx update-ts-references --verbose --discardComments${
+      `npx update-ts-references --verbose${
       configName ? ` --configName ${configName}` : ''
       }`,
       {
@@ -195,9 +196,13 @@ test('Support yarn and npm workspaces', async () => {
     const [configPath, config] = tsconfig;
 
     expect(
-      require(path.join(rootFolderYarn, configPath, 'tsconfig.json'))
+      parse(fs.readFileSync(path.join(rootFolderYarn, configPath, 'tsconfig.json')).toString())
     ).toEqual(config);
+
+
   });
+  // still has the comment
+  expect(fs.readFileSync(path.join(rootFolderYarn, 'tsconfig.json')).toString()).toMatch(/\/\* Basic Options \*\//)
 });
 
 test('Support lerna', async () => {
@@ -207,7 +212,7 @@ test('Support lerna', async () => {
     const [configPath, config] = tsconfig;
 
     expect(
-      require(path.join(rootFolderLerna, configPath, 'tsconfig.json'))
+      parse(fs.readFileSync(path.join(rootFolderLerna, configPath, 'tsconfig.json')).toString())
     ).toEqual(config);
   });
 });
@@ -219,7 +224,7 @@ test('Support yarn and npm workspaces with noHoist', async () => {
     const [configPath, config] = tsconfig;
 
     expect(
-      require(path.join(rootFolderYarnNohoist, configPath, 'tsconfig.json'))
+      parse(fs.readFileSync(path.join(rootFolderYarnNohoist, configPath, 'tsconfig.json')).toString())
     ).toEqual(config);
   });
 });
@@ -231,7 +236,7 @@ test('Support pnpm workspaces', async () => {
     const [configPath, config] = tsconfig;
 
     expect(
-      require(path.join(rootFolderPnpm, configPath, 'tsconfig.json'))
+      parse(fs.readFileSync(path.join(rootFolderPnpm, configPath, 'tsconfig.json')).toString())
     ).toEqual(config);
   });
 });
@@ -253,8 +258,7 @@ test('Detect changes with the --check option', async () => {
     const [configPath] = tsconfig;
 
     expect(
-      require(path.join(rootFolderYarnCheck, configPath, 'tsconfig.json'))
-        .references
+      parse(fs.readFileSync(path.join(rootFolderYarnCheck, configPath, 'tsconfig.json')).toString()).references
     ).toBeFalsy();
   });
 });
@@ -276,11 +280,7 @@ test('No changes detected with the --check option', async () => {
     const [configPath, config] = tsconfig;
 
     expect(
-      require(path.join(
-        rootFolderYarnCheckNoChanges,
-        configPath,
-        'tsconfig.json'
-      ))
+      parse(fs.readFileSync(path.join(rootFolderYarnCheckNoChanges, configPath, 'tsconfig.json')).toString())
     ).toEqual(config);
   });
 });
@@ -376,7 +376,9 @@ test('Support custom tsconfig names', async () => {
 
   tsconfigs.forEach((tsconfig) => {
     const [configPath, config, configNameOverride] = tsconfig;
-    expect(require(path.join(rootFolder, configPath, configNameOverride || configName))).toEqual(
+    expect(
+      parse(fs.readFileSync(path.join(rootFolder, configPath, configNameOverride || configName)).toString())
+    ).toEqual(
       config
     );
   });

@@ -1,6 +1,6 @@
 {
   "name": "update-ts-references",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "description": "Updates TypeScript references automatically while using workspaces",
   "bin": "src/index.js",
   "scripts": {
@@ -20,6 +20,7 @@
   ],
   "dependencies": {
     "@formatjs/cli": "^2.3.1",
+    "comment-json": "^4.2.3",
     "glob": "^7.1.6",
     "js-yaml": "^4.0.0",
     "minimatch": "^3.0.4",
@@ -32,9 +33,6 @@
     "eslint-plugin-jest": "^23.20.0",
     "exec-sh": "^0.3.4",
     "jest": "^26.4.0"
-  },
-  "peerDependencies": {
-    "typescript": ">=3.8.0"
   },
   "engines": {
     "node": ">=14.0.0"

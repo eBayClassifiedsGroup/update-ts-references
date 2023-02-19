@@ -10,7 +10,6 @@ const {
   verbose = defaultOptions.verbose,
   help = defaultOptions.help,
   h = defaultOptions.help,
-  discardComments = defaultOptions.discardComments,
   check = defaultOptions.check,
 } = minimist(process.argv.slice(2));
 
@@ -22,7 +21,6 @@ if (help || h) {
     --check       Checks if updates would be necessary (without applying them)
     --help        Show help
     --cwd         Set working directory. Default: ${defaultOptions.cwd}
-    --discardComments     Discards comments when updating tsconfigs. Default: ${defaultOptions.discardComments}
     --verbose     Show verbose output. Default: ${defaultOptions.verbose}
   `);
   process.exit(0);
@@ -33,7 +31,6 @@ const run = async () => {
     const changesCount = await execute({
       cwd,
       verbose,
-      discardComments,
       check,
       configName,
     });
