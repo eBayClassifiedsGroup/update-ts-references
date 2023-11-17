@@ -16,6 +16,7 @@ const rootFolderYarnCreate = path.join(
     'yarn-ws-create'
 );
 const rootFolderPnpm = path.join(process.cwd(), 'test-run', 'pnpm');
+const rootFolderTsRefYaml = path.join(process.cwd(), 'test-run', 'ts-ref-yaml');
 const rootFolderYarnCheck = path.join(
   process.cwd(),
   'test-run',
@@ -243,6 +244,18 @@ test('Support pnpm workspaces', async () => {
 
     expect(
       parse(fs.readFileSync(path.join(rootFolderPnpm, configPath, 'tsconfig.json')).toString())
+    ).toEqual(config);
+  });
+});
+
+test('Support update-ts-reference.yaml workspaces', async () => {
+  await setup(rootFolderTsRefYaml);
+
+  tsconfigs.forEach((tsconfig) => {
+    const [configPath, config] = tsconfig;
+
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderTsRefYaml, configPath, 'tsconfig.json')).toString())
     ).toEqual(config);
   });
 });

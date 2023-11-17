@@ -226,6 +226,14 @@ const execute = async ({
     workspaces = pnpmConfig.packages;
   }
 
+  if (fs.existsSync(path.join(cwd, 'update-ts-references.yaml'))) {
+    const config = yaml.load(
+        fs.readFileSync(path.join(cwd, 'update-ts-references.yaml'))
+    );
+
+    workspaces = [...(config.packages ? config.packages : []), ...(workspaces ? workspaces : [])];
+  }
+
   if (!workspaces) {
     throw new Error(
       'could not detect yarn/npm/pnpm workspaces or lerna in this repository'
