@@ -28,7 +28,7 @@ const getAllPackageJsons = async (workspaces,cwd) => {
 
   workspaces.forEach((workspaceGlob) => {
     if (workspaceGlob.startsWith('!')) {
-      ignoreGlobs.push(workspaceGlob);
+      ignoreGlobs.push(!workspaceGlob.includes('/') ? `${workspaceGlob}/${PACKAGE_JSON}`:  workspaceGlob);
     } else {
       workspaceGlobs.push(workspaceGlob);
     }
@@ -60,6 +60,7 @@ const getAllPackageJsons = async (workspaces,cwd) => {
         (packageName) =>
           ignoreGlobs.reduce((prev, actualPattern) => {
             if (!prev) return prev;
+
             return minimatch(packageName, actualPattern);
           }, true) && !packageName.includes('node_modules')
       )
@@ -134,7 +135,6 @@ const getReferencesFromDependencies = (
   }
 
   return Object.keys(mergedDependencies)
-      .filter(name => !name.includes('test-utils'))
     .reduce((referenceArray, dependency) => {
       if (packagesMap.has(dependency)) {
         const { packageDir: dependencyDir } = packagesMap.get(dependency);
@@ -214,6 +214,10 @@ const execute = async ({
   const packageJson = require(path.join(cwd, PACKAGE_JSON));
 
   let workspaces = packageJson.workspaces;
+  if(workspaces && !Array.isArray(workspaces)) {
+    workspaces = workspaces.packages;
+  }
+
   if (!workspaces && fs.existsSync(path.join(cwd, 'lerna.json'))) {
     const lernaJson = require(path.join(cwd, 'lerna.json'));
     workspaces = lernaJson.packages;
@@ -226,14 +230,22 @@ const execute = async ({
     workspaces = pnpmConfig.packages;
   }
 
+  if (fs.existsSync(path.join(cwd, 'update-ts-references.yaml'))) {
+    const config = yaml.load(
+        fs.readFileSync(path.join(cwd, 'update-ts-references.yaml'))
+    );
+
+    workspaces = [...(config.packages ? config.packages : []), ...(workspaces ? workspaces : [])];
+
+    if (verbose) {
+      console.log('joined workspaces config', workspaces);
+    }
+  }
+
   if (!workspaces) {
     throw new Error(
       'could not detect yarn/npm/pnpm workspaces or lerna in this repository'
     );
-  }
-
-  if (!Array.isArray(workspaces)) {
-    workspaces = workspaces.packages;
   }
 
   const packageFilePaths = await getAllPackageJsons(workspaces, cwd);
