@@ -75,7 +75,7 @@ const detectTSConfig = (directory, configName, createConfig,cwd) => {
     let maybeExtends = {}
     if(fs.existsSync(path.join(cwd, 'tsconfig.base.json'))) {
         maybeExtends = {
-            extends: `${path.join(path.relative(directory,cwd),"/tsconfig.base.json")}`,
+            extends: `${path.join(path.relative(directory,cwd),"tsconfig.base.json").split(path.sep).join(path.posix.sep)}`,
         }
     }
     const tsconfigFilePath = path.join(directory, configName);

@@ -252,7 +252,7 @@ test('Test create tsconfig', async () => {
   const r = [
     '.',
     {
-      extends: ["./tsconfig.base.json"],
+      extends: [`./tsconfig.base.json`],
       compilerOptions: {
         composite: true,
       },
