@@ -9,6 +9,12 @@ const rootFolderYarnNohoist = path.join(
   'test-run',
   'yarn-ws-nohoist'
 );
+
+const rootFolderYarnCreate = path.join(
+    process.cwd(),
+    'test-run',
+    'yarn-ws-create'
+);
 const rootFolderPnpm = path.join(process.cwd(), 'test-run', 'pnpm');
 const rootFolderYarnCheck = path.join(
   process.cwd(),
@@ -29,7 +35,7 @@ const rootFolderConfigName = path.join(
 
 const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
-const setup = async (rootFolder, configName) => {
+const setup = async (rootFolder, configName, createTsConfig) => {
   if (!fs.existsSync(rootFolder)) {
     throw new Error(`folder is missing -> ${rootFolder}`);
   }
@@ -38,7 +44,7 @@ const setup = async (rootFolder, configName) => {
     await execSh(
       `npx update-ts-references --verbose${
       configName ? ` --configName ${configName}` : ''
-      }`,
+      }${createTsConfig ? ` --createTsConfig` : ''}`,
       {
         cwd: rootFolder,
       }
@@ -241,6 +247,58 @@ test('Support pnpm workspaces', async () => {
   });
 });
 
+test('Test create tsconfig', async () => {
+  await setup(rootFolderYarnCreate, undefined, true);
+  const r = [
+    '.',
+    {
+      extends: [`./tsconfig.base.json`],
+      compilerOptions: {
+        composite: true,
+      },
+      files: [],
+      references: [
+        {
+          path: 'workspace-a',
+        },
+        {
+          path: 'workspace-b',
+        }
+      ],
+    },
+  ];
+  const a = [
+    './workspace-a',
+    {
+      extends: "../tsconfig.base.json",
+      compilerOptions: {
+        outDir: "dist",
+        rootDir: "src"
+      },
+      references: [
+        {
+          path: '../workspace-b',
+        },
+      ],
+    },
+  ];
+  const b = [
+    './workspace-b',
+    {
+      compilerOptions
+    },
+  ];
+
+  [r,a,b].forEach((tsconfig) => {
+    const [configPath, config] = tsconfig;
+
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderYarnCreate, configPath, 'tsconfig.json')).toString())
+    ).toEqual(config);
+  });
+  expect(fs.existsSync(path.join(rootFolderYarnCreate,'workspace-c', 'tsconfig.json'))).toBeFalsy();
+});
+
 test('Detect changes with the --check option', async () => {
   let errorCode = 0;
   try {
@@ -284,6 +342,8 @@ test('No changes detected with the --check option', async () => {
     ).toEqual(config);
   });
 });
+
+
 
 test('Support custom tsconfig names', async () => {
   const configName = 'tsconfig.dev.json';

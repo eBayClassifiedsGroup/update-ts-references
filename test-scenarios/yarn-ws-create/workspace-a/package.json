@@ -1,0 +1,11 @@
+{
+  "name": "workspace-a",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "workspace-b": "1.0.0"
+  },
+  "devDependencies": {
+      "foo-a": "1.0.0"
+  }
+}
