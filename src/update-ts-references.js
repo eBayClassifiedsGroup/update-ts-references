@@ -214,6 +214,10 @@ const execute = async ({
   const packageJson = require(path.join(cwd, PACKAGE_JSON));
 
   let workspaces = packageJson.workspaces;
+  if(workspaces && !Array.isArray(workspaces)) {
+    workspaces = workspaces.packages;
+  }
+
   if (!workspaces && fs.existsSync(path.join(cwd, 'lerna.json'))) {
     const lernaJson = require(path.join(cwd, 'lerna.json'));
     workspaces = lernaJson.packages;
@@ -242,10 +246,6 @@ const execute = async ({
     throw new Error(
       'could not detect yarn/npm/pnpm workspaces or lerna in this repository'
     );
-  }
-
-  if (!Array.isArray(workspaces)) {
-    workspaces = workspaces.packages;
   }
 
   const packageFilePaths = await getAllPackageJsons(workspaces, cwd);
