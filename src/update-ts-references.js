@@ -15,13 +15,14 @@ const TSCONFIG_JSON = 'tsconfig.json'
 
 const defaultOptions = {
   configName: 'tsconfig.json',
+  createTsConfig: false,
   cwd: process.cwd(),
   verbose: false,
   help: false,
   check: false,
 };
 
-const getAllPackageJsons = async (workspaces) => {
+const getAllPackageJsons = async (workspaces,cwd) => {
   const ignoreGlobs = [];
   const workspaceGlobs = [];
 
@@ -37,7 +38,7 @@ const getAllPackageJsons = async (workspaces) => {
     workspaceGlobs.map(
       (workspace) =>
         new Promise((resolve, reject) => {
-          glob(`${workspace}/${PACKAGE_JSON}`, (error, files) => {
+          glob(`${workspace}/${PACKAGE_JSON}`, {cwd},(error, files) => {
             if (error) {
               reject(error);
             }
@@ -65,21 +66,42 @@ const getAllPackageJsons = async (workspaces) => {
     );
 };
 
-const detectTSConfig = (directory, configName) => {
+const detectTSConfig = (directory, configName, createConfig,cwd) => {
   let detectedConfig = fs.existsSync(path.join(directory, configName)) ? configName : null
   if (configName !== TSCONFIG_JSON && detectedConfig === null) {
     detectedConfig = fs.existsSync(path.join(directory, TSCONFIG_JSON)) ? TSCONFIG_JSON : null
+  }
+  if(detectedConfig === null && createConfig) {
+    let maybeExtends = {}
+    if(fs.existsSync(path.join(cwd, 'tsconfig.base.json'))) {
+        maybeExtends = {
+            extends: `${path.join(path.relative(directory,cwd),"/tsconfig.base.json")}`,
+        }
+    }
+    const tsconfigFilePath = path.join(directory, configName);
+      fs.writeFileSync(tsconfigFilePath, stringify(Object.assign(maybeExtends,{
+        compilerOptions: {
+          outDir: "dist",
+          rootDir: "src"
+        },
+        references: [],
+      }), null, 2) + '\n');
+
+      return configName
   }
   return detectedConfig
 }
 
 
-const getPackageNamesAndPackageDir = (packageFilePaths) =>
+const getPackageNamesAndPackageDir = (packageFilePaths, cwd) =>
   packageFilePaths.reduce((map, packageFilePath) => {
-    const fullPackageFilePath = path.join(process.cwd(), packageFilePath);
+    const fullPackageFilePath = path.join(cwd, packageFilePath);
     const packageJson = require(fullPackageFilePath);
     const { name } = packageJson;
-    map.set(name, { packageDir: path.dirname(fullPackageFilePath) });
+    map.set(name, {
+      packageDir: path.dirname(fullPackageFilePath),
+      hasTsEntry: /\.(ts|tsx)$/.test((packageJson.main ? packageJson.main :''))
+    });
     return map;
   }, new Map());
 
@@ -112,6 +134,7 @@ const getReferencesFromDependencies = (
   }
 
   return Object.keys(mergedDependencies)
+      .filter(name => !name.includes('test-utils'))
     .reduce((referenceArray, dependency) => {
       if (packagesMap.has(dependency)) {
         const { packageDir: dependencyDir } = packagesMap.get(dependency);
@@ -180,7 +203,7 @@ const updateTsConfig = (
 };
 
 const execute = async ({
-  cwd,
+  cwd, createTsConfig,
   verbose,
   check,
   configName,
@@ -213,11 +236,11 @@ const execute = async ({
     workspaces = workspaces.packages;
   }
 
-  const packageFilePaths = await getAllPackageJsons(workspaces);
+  const packageFilePaths = await getAllPackageJsons(workspaces, cwd);
   if (verbose) {
     console.log('packageFilePaths', packageFilePaths);
   }
-  const packagesMap = getPackageNamesAndPackageDir(packageFilePaths);
+  const packagesMap = getPackageNamesAndPackageDir(packageFilePaths, cwd);
 
   if (verbose) {
     console.log('packagesMap', packagesMap);
@@ -226,11 +249,11 @@ const execute = async ({
   const rootReferences = [];
 
   packagesMap.forEach((packageEntry, packageName) => {
-    const detectedConfig = detectTSConfig(packageEntry.packageDir, configName)
+    const detectedConfig = detectTSConfig(packageEntry.packageDir, configName, packageEntry.hasTsEntry && createTsConfig,cwd)
 
     if (detectedConfig) {
       rootReferences.push({
-        path: path.join(path.relative(process.cwd(), packageEntry.packageDir), detectedConfig !== TSCONFIG_JSON ? detectedConfig : ''),
+        path: path.join(path.relative(cwd, packageEntry.packageDir), detectedConfig !== TSCONFIG_JSON ? detectedConfig : ''),
       });
       const references = getReferencesFromDependencies(
         configName,
@@ -260,7 +283,8 @@ const execute = async ({
   changesCount += updateTsConfig(
     configName,
     rootReferences,
-    check
+    check, {packageDir:cwd}
+
   );
 
   if (verbose) {

@@ -1,0 +1,9 @@
+{
+  "extends": ["./tsconfig.base.json"],
+  "files": [],
+  "compilerOptions": {
+    /* Basic Options */
+    // "allowJs": true,
+    "composite": true
+  }
+}

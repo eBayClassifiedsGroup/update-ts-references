@@ -15,11 +15,13 @@ npx update-ts-references --help
   Usage: update-ts-references [options]
 
   Options:
-    --configName  The name of the config files which needs to be updated. Default: tsconfig.json
-    --check       Checks if updates would be necessary (without applying them)
-    --help        Show help
-    --cwd         Set working directory. Default: [current path]
-    --verbose     Show verbose output. Default: false
+    --configName    The name of the config files which needs to be updated. Default: tsconfig.json
+    --check         Checks if updates would be necessary (without applying them)
+    --help          Show help
+    --createTsConfig  Create default TS configs for packages where the main entry in the package.json have a ts|tsx extension (Note: respects the --configName parameter)
+    --cwd           Set working directory. Default: /Users/mirko.kruschke/coding/ecg-public/update-ts-references
+    --verbose       Show verbose output. Default: false
+
 ```
 
 or you add it as dev dependency and include it in the `postinstall` script in the package.json
@@ -37,11 +39,37 @@ or you add it as dev dependency and include it in the `postinstall` script in th
   },
 ```
 
-## FAQ
+enable pre-push via husky
+```
+npx husky add .husky/pre-push "npx update-ts-references --check"
+git add .husky/pre-push
+```
 
+## using --creatTsConfig
+Creates a basic tsconfig file for each package where the main entry in the package.json have a `.ts` or `.tsx` extension. It will respect the `--configName` parameter.
+
+The output for the created file looks like the following
+
+```json
+{
+  "extends": "../tsconfig.base.json", // add's extends in case you have a base config in the root directory 
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [ // will be added after running update-ts-references 
+    {
+      "path": "../some-other-package
+    }
+  ]
+}
+```
+
+
+## FAQ
 ### Why is my pnpm workspace alias not working?
 
-_update-ts-references_ is currently not supporting [Referencing workspace packages through aliases](https://pnpm.js.org/workspaces#referencing-workspace-packages-through-aliases) yet. See issue #13 
+_update-ts-references_ is currently not supporting [Referencing workspace packages through aliases](https://pnpm.js.org/workspaces#referencing-workspace-packages-through-aliases) yet. See issue #13
 
 # License
 

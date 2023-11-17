@@ -23,7 +23,7 @@
     "comment-json": "^4.2.3",
     "glob": "^7.1.6",
     "js-yaml": "^4.0.0",
-    "minimatch": "^3.0.4",
+    "minimatch": "^3.0.5",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4"
   },
@@ -39,7 +39,7 @@
   "license": "MIT",
   "keywords": [
     "typescript",
-    "references",
+    "project references",
     "tool",
     "util",
     "yarn",
