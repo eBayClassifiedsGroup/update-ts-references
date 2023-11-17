@@ -28,7 +28,7 @@ const getAllPackageJsons = async (workspaces,cwd) => {
 
   workspaces.forEach((workspaceGlob) => {
     if (workspaceGlob.startsWith('!')) {
-      ignoreGlobs.push(workspaceGlob);
+      ignoreGlobs.push(!workspaceGlob.includes('/') ? `${workspaceGlob}/${PACKAGE_JSON}`:  workspaceGlob);
     } else {
       workspaceGlobs.push(workspaceGlob);
     }
@@ -60,6 +60,7 @@ const getAllPackageJsons = async (workspaces,cwd) => {
         (packageName) =>
           ignoreGlobs.reduce((prev, actualPattern) => {
             if (!prev) return prev;
+
             return minimatch(packageName, actualPattern);
           }, true) && !packageName.includes('node_modules')
       )
@@ -134,7 +135,6 @@ const getReferencesFromDependencies = (
   }
 
   return Object.keys(mergedDependencies)
-      .filter(name => !name.includes('test-utils'))
     .reduce((referenceArray, dependency) => {
       if (packagesMap.has(dependency)) {
         const { packageDir: dependencyDir } = packagesMap.get(dependency);
@@ -232,6 +232,10 @@ const execute = async ({
     );
 
     workspaces = [...(config.packages ? config.packages : []), ...(workspaces ? workspaces : [])];
+
+    if (verbose) {
+      console.log('joined workspaces config', workspaces);
+    }
   }
 
   if (!workspaces) {

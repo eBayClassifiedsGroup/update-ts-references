@@ -59,11 +59,17 @@ The output for the created file looks like the following
   },
   "references": [ // will be added after running update-ts-references 
     {
-      "path": "../some-other-package
+      "path": "../some-other-package"
     }
   ]
 }
 ```
+
+## using update-ts-references.yaml for configurations
+You can configure paths via the _update-ts-references.yaml_ file. This is useful if your repo is having **no** _package.json_ or _pnp-workspace.yaml_ in the root folder. Additional to that it can also being used to extend the paths config next to the normal workspace setup via npm, pnpm, yarn and lerna so you can include or exclude some packages. 
+
+Example configuration see [here](./test-scenarios/ts-ref-yaml/update-ts-references.yaml)
+
 
 
 ## FAQ

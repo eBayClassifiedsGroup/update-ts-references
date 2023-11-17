@@ -258,6 +258,11 @@ test('Support update-ts-reference.yaml workspaces', async () => {
         parse(fs.readFileSync(path.join(rootFolderTsRefYaml, configPath, 'tsconfig.json')).toString())
     ).toEqual(config);
   });
+
+  // should not touch the ignore config
+  expect(
+      parse(fs.readFileSync(path.join(rootFolderTsRefYaml,'workspace-ignore', 'tsconfig.json')).toString())
+  ).toEqual( {compilerOptions});
 });
 
 test('Test create tsconfig', async () => {
