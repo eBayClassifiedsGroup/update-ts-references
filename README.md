@@ -16,6 +16,7 @@ npx update-ts-references --help
 
   Options:
     --configName    The name of the config files which needs to be updated. Default: tsconfig.json
+    --rootConfigName    The name of the root config file which needs to be updated. Default: tsconfig.json
     --check         Checks if updates would be necessary (without applying them)
     --help          Show help
     --createTsConfig  Create default TS configs for packages where the main entry in the package.json have a ts|tsx extension (Note: respects the --configName parameter)

@@ -36,7 +36,7 @@ const rootFolderConfigName = path.join(
 
 const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
-const setup = async (rootFolder, configName, createTsConfig) => {
+const setup = async (rootFolder, configName, rootConfigName, createTsConfig) => {
   if (!fs.existsSync(rootFolder)) {
     throw new Error(`folder is missing -> ${rootFolder}`);
   }
@@ -45,6 +45,8 @@ const setup = async (rootFolder, configName, createTsConfig) => {
     await execSh(
       `npx update-ts-references --verbose${
       configName ? ` --configName ${configName}` : ''
+      }${
+          rootConfigName ? ` --rootConfigName ${rootConfigName}` : ''
       }${createTsConfig ? ` --createTsConfig` : ''}`,
       {
         cwd: rootFolder,
@@ -266,7 +268,7 @@ test('Support update-ts-reference.yaml workspaces', async () => {
 });
 
 test('Test create tsconfig', async () => {
-  await setup(rootFolderYarnCreate, undefined, true);
+  await setup(rootFolderYarnCreate, undefined, undefined,true);
   const r = [
     '.',
     {
@@ -365,8 +367,9 @@ test('No changes detected with the --check option', async () => {
 
 test('Support custom tsconfig names', async () => {
   const configName = 'tsconfig.dev.json';
+  const rootConfigName = 'tsconfig.ref.json';
   const rootFolder = rootFolderConfigName;
-  await setup(rootFolder, configName);
+  await setup(rootFolder, configName, rootConfigName);
 
   const tsconfigs = [
     [
@@ -397,6 +400,7 @@ test('Support custom tsconfig names', async () => {
           },
         ],
       },
+      rootConfigName
     ],
     [
       './workspace-a',

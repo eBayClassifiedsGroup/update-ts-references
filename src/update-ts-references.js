@@ -14,7 +14,8 @@ const PACKAGE_JSON = 'package.json';
 const TSCONFIG_JSON = 'tsconfig.json'
 
 const defaultOptions = {
-  configName: 'tsconfig.json',
+  configName: TSCONFIG_JSON,
+  rootConfigName: TSCONFIG_JSON,
   createTsConfig: false,
   cwd: process.cwd(),
   verbose: false,
@@ -207,6 +208,7 @@ const execute = async ({
   verbose,
   check,
   configName,
+  rootConfigName
 }) => {
   let changesCount = 0;
   // eslint-disable-next-line no-console
@@ -293,7 +295,7 @@ const execute = async ({
     console.log('rootReferences', rootReferences);
   }
   changesCount += updateTsConfig(
-    configName,
+    rootConfigName,
     rootReferences,
     check, {packageDir:cwd}
 
