@@ -13,8 +13,8 @@ const {
   help = defaultOptions.help,
   h = defaultOptions.help,
   check = defaultOptions.check,
+  createPathMappings = defaultOptions.createPathMappings,
 } = minimist(process.argv.slice(2));
-console.log('->',createTsConfig)
 if (help || h) {
   console.log(`
   Usage: update-ts-references [options]
@@ -24,6 +24,7 @@ if (help || h) {
     --check         Checks if updates would be necessary (without applying them)
     --help          Show help
     --createTsConfig  Create default TS configs for packages where the main entry in the package.json have a ts|tsx extension (Note: respects the --configName parameter)
+    --createPathMappings Create paths mappings under compilerOptions for a better IDE support. It respects the rootDir if no rootDir available it falls back to "src"
     --cwd           Set working directory. Default: ${defaultOptions.cwd}
     --verbose       Show verbose output. Default: ${defaultOptions.verbose}
   `);
@@ -38,7 +39,8 @@ const run = async () => {
       check,
       configName,
       rootConfigName,
-      createTsConfig
+      createTsConfig,
+      createPathMappings
     });
 
     if (check && changesCount > 0) {

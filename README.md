@@ -20,7 +20,8 @@ npx update-ts-references --help
     --check         Checks if updates would be necessary (without applying them)
     --help          Show help
     --createTsConfig  Create default TS configs for packages where the main entry in the package.json have a ts|tsx extension (Note: respects the --configName parameter)
-    --cwd           Set working directory. Default: /Users/mirko.kruschke/coding/ecg-public/update-ts-references
+    -createPathMappings Create paths mappings under compilerOptions for a better IDE support. It respects the rootDir if no rootDir available it falls back to "src"
+    --cwd           Set working directory. Default: /Users/john-doe/projects/my-project
     --verbose       Show verbose output. Default: false
 
 ```
@@ -46,7 +47,7 @@ npx husky add .husky/pre-push "npx update-ts-references --check"
 git add .husky/pre-push
 ```
 
-## using --creatTsConfig
+## using --createTsConfig
 Creates a basic tsconfig file for each package where the main entry in the package.json have a `.ts` or `.tsx` extension. It will respect the `--configName` parameter.
 
 The output for the created file looks like the following
@@ -66,10 +67,37 @@ The output for the created file looks like the following
 }
 ```
 
-## using update-ts-references.yaml for configurations
-You can configure paths via the _update-ts-references.yaml_ file. This is useful if your repo is having **no** _package.json_ or _pnp-workspace.yaml_ in the root folder. Additional to that it can also being used to extend the paths config next to the normal workspace setup via npm, pnpm, yarn and lerna so you can include or exclude some packages. 
+## using --createPathMappings
+will create path mappings under `compilerOptions` for a better IDE support. It respects the `rootDir` if no `rootDir` available it falls back to `src`
 
-Example configuration see [here](./test-scenarios/ts-ref-yaml/update-ts-references.yaml)
+```json
+{
+  "extends": "../tsconfig.base.json", // add's extends in case you have a base config in the root directory 
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": { // will be added after running update-ts-references with --createPathMappings
+      "@my-project/some-other-package": ["../some-other-package/src"]
+    }
+  },
+  "references": [ // will be added after running update-ts-references 
+    {
+      "path": "../some-other-package"
+    }
+  ]
+}
+```
+
+
+## using update-ts-references.yaml for configurations
+You can configure workspace paths via the _update-ts-references.yaml_ file. This is useful if your repo is having **no** _package.json_ or _pnp-workspace.yaml_ in the root folder. Additional to that it can also being used to extend the paths config next to the normal workspace setup via npm, pnpm, yarn and lerna so you can include or exclude some packages.
+
+Additional to that you can configure also the following options:
+- configName (default: tsconfig.json)
+- rootConfigName (default: tsconfig.json)
+- createPathMappings (default: false)
+
+Example configuration see [here](./test-scenarios/ts-options-yaml/update-ts-references.yaml)
 
 
 
