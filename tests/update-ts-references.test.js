@@ -237,6 +237,7 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 composite: true,
+                paths: { "foo-c": ["utils/foos/foo-c/src"]   }
             },
             files: [],
             references: [
@@ -291,9 +292,9 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 ...compilerOptions,
-                rootDir: "src2",
+                rootDir: "src",
                 paths: {
-                    "foo-b": ["../foo-b/src2"]
+                    "foo-b": ["../foo-b/src"]
                 },
             },
             references: [

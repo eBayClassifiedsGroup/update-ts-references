@@ -161,17 +161,17 @@ const getReferencesFromDependencies = (
 const ensurePosixPathStyle = (reference) => ({
     ...reference,
     path: reference.path.split(path.sep).join(path.posix.sep),
-    folder: reference.folder.split(path.sep).join(path.posix.sep),
+    folder: reference.folder?.split(path.sep).join(path.posix.sep),
 });
 
 const updateTsConfig = (
     configName,
-    win32OrPosixReferences,
+    references,
+    paths,
     check,
     createPathMappings = false,
     {packageDir} = {packageDir: process.cwd()},
 ) => {
-    const references = (win32OrPosixReferences || []).map(ensurePosixPathStyle);
     const tsconfigFilePath = path.join(packageDir, configName);
 
     try {
@@ -195,12 +195,9 @@ const updateTsConfig = (
             if (check === false) {
 
                 const compilerOptions = config?.compilerOptions ?? {};
-                if (createPathMappings)
+                if (createPathMappings && paths && Object.keys(paths).length > 0)
                     assign(compilerOptions, {
-                        paths: references.reduce((paths, ref) => ({
-                            ...paths,
-                            [`${ref.name}`]: [`${ref.folder}/${config.compilerOptions?.rootDir ?? 'src'}`]
-                        }), {})
+                        paths
                     })
 
                 const newTsConfig = assign(config,
@@ -218,6 +215,13 @@ const updateTsConfig = (
         console.error(`could not read ${tsconfigFilePath}`, error);
     }
 };
+
+function getPathsFromReferences(references) {
+    return references.reduce((paths, ref) => ({
+        ...paths,
+        [`${ref.name}`]: [`${ref.folder}/src`]
+    }), {});
+}
 
 const execute = async ({
                            cwd, createTsConfig,
@@ -286,8 +290,8 @@ const execute = async ({
         console.log('packagesMap', packagesMap);
     }
 
-    const rootReferences = [];
-
+    let rootReferences = [];
+    let rootPaths = [];
     packagesMap.forEach((packageEntry, packageName) => {
         const detectedConfig = detectTSConfig(packageEntry.packageDir, configName, packageEntry.hasTsEntry && createTsConfig, cwd)
 
@@ -304,12 +308,18 @@ const execute = async ({
                 packagesMap,
                 verbose
             );
+
+            const paths = getPathsFromReferences(references)
+
             if (verbose) {
                 console.log(`references of ${packageName}`, references);
+                console.log(`paths of ${packageName}`, paths);
             }
+
             changesCount += updateTsConfig(
                 detectedConfig,
                 references,
+                paths,
                 check,
                 createPathMappings,
                 packageEntry
@@ -317,16 +327,26 @@ const execute = async ({
         } else {
             // eslint-disable-next-line no-console
             console.log(`NO ${configName === TSCONFIG_JSON ? configName : `${configName} nor ${TSCONFIG_JSON}`} for ${packageName}`);
+            rootPaths.push({
+                name: packageName,
+                path: path.relative(cwd, packageEntry.packageDir),
+                folder: path.relative(cwd, packageEntry.packageDir),
+            });
         }
     });
 
+    rootReferences = (rootReferences || []).map(ensurePosixPathStyle);
+    rootPaths = getPathsFromReferences((rootPaths || []).map(ensurePosixPathStyle))
+
     if (verbose) {
         console.log('rootReferences', rootReferences);
+        console.log('rootPaths', rootPaths);
     }
     changesCount += updateTsConfig(
         rootConfigName,
         rootReferences,
-        check, false, {packageDir: cwd}
+        rootPaths,
+        check, createPathMappings, {packageDir: cwd}
     );
 
     if (verbose) {
