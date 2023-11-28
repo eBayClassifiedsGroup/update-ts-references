@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src2"
+    "rootDir": "src"
   }
 }

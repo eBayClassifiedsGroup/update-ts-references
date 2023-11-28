@@ -20,7 +20,7 @@ npx update-ts-references --help
     --check         Checks if updates would be necessary (without applying them)
     --help          Show help
     --createTsConfig  Create default TS configs for packages where the main entry in the package.json have a ts|tsx extension (Note: respects the --configName parameter)
-    -createPathMappings Create paths mappings under compilerOptions for a better IDE support. It respects the rootDir if no rootDir available it falls back to "src"
+    --createPathMappings Create paths mappings under compilerOptions for a better IDE support. It respects the rootDir if no rootDir available it falls back to "src"
     --cwd           Set working directory. Default: /Users/john-doe/projects/my-project
     --verbose       Show verbose output. Default: false
 
@@ -68,7 +68,7 @@ The output for the created file looks like the following
 ```
 
 ## using --createPathMappings
-will create path mappings under `compilerOptions` for a better IDE support. It respects the `rootDir` if no `rootDir` available it falls back to `src`
+will create path mappings under `compilerOptions` for a better IDE support. It assumes the source files are under `src`.
 
 ```json
 {
