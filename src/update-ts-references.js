@@ -301,13 +301,13 @@ const execute = async ({
                 path: path.join(path.relative(cwd, packageEntry.packageDir), detectedConfig !== TSCONFIG_JSON ? detectedConfig : ''),
                 folder: path.relative(cwd, packageEntry.packageDir),
             });
-            const references = getReferencesFromDependencies(
+            const references = (getReferencesFromDependencies(
                 configName,
                 packageEntry,
                 packageName,
                 packagesMap,
                 verbose
-            );
+            ) || []).map(ensurePosixPathStyle);
 
             const paths = getPathsFromReferences(references)
 
