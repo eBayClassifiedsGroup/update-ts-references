@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "workspace-a"
+    },
+    {
+      "path": "workspace-b"
+    },
+    {
+      "path": "utils/foos/foo-a"
+    },
+  ]
+}

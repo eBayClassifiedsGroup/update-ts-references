@@ -187,6 +187,8 @@ const updateTsConfig = (
         let isEqual = false;
         try {
             assert.deepEqual(JSON.parse(JSON.stringify(currentReferences)), mergedReferences);
+            if (createPathMappings)
+                assert.deepEqual(JSON.parse(JSON.stringify(config?.compilerOptions?.paths ?? {})), paths);
             isEqual = true;
         } catch (e) {
             // ignore me
@@ -195,10 +197,11 @@ const updateTsConfig = (
             if (check === false) {
 
                 const compilerOptions = config?.compilerOptions ?? {};
-                if (createPathMappings && paths && Object.keys(paths).length > 0)
-                    assign(compilerOptions, {
-                        paths
-                    })
+                if (createPathMappings && paths)
+                    assign(compilerOptions,
+                        paths && Object.keys(paths).length > 0 ? {
+                            paths
+                        } : {paths: undefined})
 
                 const newTsConfig = assign(config,
                     {
