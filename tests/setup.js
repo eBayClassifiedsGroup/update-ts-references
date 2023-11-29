@@ -8,7 +8,7 @@ const setup = async (rootFolder, configName, rootConfigName, createTsConfig, cre
 
     try {
         await execSh(
-            `npx update-ts-references --verbose${
+            `npx update-ts-references ${process.env.DEBUG ? '--verbose':'' }${
                 configName ? ` --configName ${configName}` : ''
             }${
                 rootConfigName ? ` --rootConfigName ${rootConfigName}` : ''

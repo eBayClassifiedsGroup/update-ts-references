@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "paths": { "replace-me": ["../utils/old-one/src"]},
+    "rootDir": "src"
   },
   "references": [
     {
