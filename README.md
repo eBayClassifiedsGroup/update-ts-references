@@ -23,6 +23,7 @@ npx update-ts-references --help
     --createPathMappings Create paths mappings under compilerOptions for a better IDE support. It respects the rootDir if no rootDir available it falls back to "src"
     --cwd           Set working directory. Default: /Users/john-doe/projects/my-project
     --verbose       Show verbose output. Default: false
+    --usecase       Use a specific usecase configuration. Default: update-ts-references.yaml
 
 ```
 
@@ -99,7 +100,8 @@ Additional to that you can configure also the following options:
 
 Example configuration see [here](./test-scenarios/ts-options-yaml/update-ts-references.yaml)
 
-
+### using multiple configurations for different usecases
+Executing update-ts-references with different configurations via the parameter `--usecase`.
 
 ## FAQ
 ### Why is my pnpm workspace alias not working?

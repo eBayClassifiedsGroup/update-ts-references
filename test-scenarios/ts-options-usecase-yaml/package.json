@@ -1,0 +1,13 @@
+{
+  "name": "ts-ref-yaml-workspace",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "workspace-b",
+    "shared/*",
+    "utils/**/"
+  ],
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}
