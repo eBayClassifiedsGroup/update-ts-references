@@ -14,6 +14,7 @@ const {
   h = defaultOptions.help,
   check = defaultOptions.check,
   createPathMappings = defaultOptions.createPathMappings,
+  usecase = defaultOptions.usecase
 } = minimist(process.argv.slice(2));
 if (help || h) {
   console.log(`
@@ -27,6 +28,7 @@ if (help || h) {
     --createPathMappings Create paths mappings under compilerOptions for a better IDE support. It respects the rootDir if no rootDir available it falls back to "src"
     --cwd           Set working directory. Default: ${defaultOptions.cwd}
     --verbose       Show verbose output. Default: ${defaultOptions.verbose}
+    --usecase       The use case for the script. Default: ${defaultOptions.usecase}
   `);
   process.exit(0);
 }
@@ -40,7 +42,8 @@ const run = async () => {
       configName,
       rootConfigName,
       createTsConfig,
-      createPathMappings
+      createPathMappings,
+      usecase
     });
 
     if (check && changesCount > 0) {

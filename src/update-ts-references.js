@@ -21,7 +21,8 @@ const defaultOptions = {
     verbose: false,
     help: false,
     check: false,
-    createPathMappings: false
+    createPathMappings: false,
+    usecase: 'update-ts-references.yaml'
 };
 
 const getAllPackageJsons = async (workspaces, cwd) => {
@@ -230,6 +231,7 @@ const execute = async ({
                            cwd, createTsConfig,
                            verbose,
                            check,
+                           usecase,
                            ...configurable
                        }) => {
     let changesCount = 0;
@@ -260,9 +262,9 @@ const execute = async ({
         createPathMappings
     } = configurable
 
-    if (fs.existsSync(path.join(cwd, 'update-ts-references.yaml'))) {
+    if (fs.existsSync(path.join(cwd, usecase))) {
         const yamlConfig = yaml.load(
-            fs.readFileSync(path.join(cwd, 'update-ts-references.yaml'))
+            fs.readFileSync(path.join(cwd, usecase))
         );
         configName = yamlConfig.configName ?? configName
         rootConfigName = yamlConfig.rootConfigName ?? rootConfigName

@@ -5,6 +5,7 @@ const {parse} = require("comment-json")
 
 const rootFolderTsRefYaml = path.join(process.cwd(), 'test-run', 'ts-ref-yaml');
 const rootFolderTsOptionsYaml = path.join(process.cwd(), 'test-run', 'ts-options-yaml');
+const rootFolderUsecaseYaml = path.join(process.cwd(), 'test-run', 'ts-options-usecase-yaml');
 
 const compilerOptions = {outDir: 'dist', rootDir: 'src'};
 
@@ -193,5 +194,61 @@ test('receive options via the config', async () => {
     // should not touch the ignore config
     expect(
         parse(fs.readFileSync(path.join(rootFolderTsOptionsYaml, 'workspace-ignore', 'tsconfig.json')).toString())
+    ).toEqual({compilerOptions});
+});
+
+test('receive options for a different usecase', async () => {
+    await setup(rootFolderUsecaseYaml, undefined, undefined, undefined, undefined, 'update-ts-references.e2e.yaml');
+    const root = [
+        '.',
+        {
+            compilerOptions: {
+                composite: true,
+            },
+            files: [],
+            references: [
+                {
+                    path: 'workspace-a/tsconfig.dev.json',
+                },
+                {
+                    path: 'workspace-b/tsconfig.dev.json',
+                },
+            ],
+        },
+    ];
+
+    const a = [
+        './workspace-a',
+        {
+            compilerOptions: {
+                ...compilerOptions,
+                paths: {"workspace-b": ["../workspace-b/src"]}
+            },
+            references: [
+                {
+                    path: '../workspace-b/tsconfig.dev.json',
+                },
+            ],
+        },
+    ];
+
+    const b = [
+        './workspace-b',
+        {
+            compilerOptions,
+        },
+    ];
+
+    [root,a,b].forEach((tsconfig) => {
+        const [configPath, config] = tsconfig;
+
+        expect(
+            parse(fs.readFileSync(path.join(rootFolderUsecaseYaml, configPath, configPath === '.'?'tsconfig.root.json':'tsconfig.dev.json')).toString())
+        ).toEqual(config);
+    });
+
+    // should not touch the ignore config
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderUsecaseYaml, 'workspace-ignore', 'tsconfig.json')).toString())
     ).toEqual({compilerOptions});
 });
