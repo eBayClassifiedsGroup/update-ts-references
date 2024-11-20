@@ -9,6 +9,7 @@ const rootFolderYarnNohoist = path.join(
     'test-run',
     'yarn-ws-nohoist'
 );
+const rootFolderTsRefNoRoot = path.join(process.cwd(), 'test-run', 'ts-ref-noroot');
 
 const rootFolderYarnCreate = path.join(
     process.cwd(),
@@ -363,6 +364,42 @@ test('Test create tsconfig', async () => {
     });
     expect(fs.existsSync(path.join(rootFolderYarnCreate, 'workspace-c', 'tsconfig.json'))).toBeFalsy();
 });
+
+test('Support option --withoutRootConfig', async () => {
+    await setup(rootFolderTsRefNoRoot,undefined,undefined,undefined,undefined,undefined,true);
+
+    const tsconfigs = [
+        [
+            '.',
+            {
+                compilerOptions: {
+                    composite: true,
+                },
+                files: []
+            },
+        ],
+        wsATsConfig,
+        wsBTsConfig,
+        wsCTsConfig,
+        wsDTsConfig,
+        fooATsConfig,
+        fooBTsConfig,
+    ]
+
+    tsconfigs.forEach((tsconfig) => {
+        const [configPath, config] = tsconfig;
+
+        expect(
+            parse(fs.readFileSync(path.join(rootFolderTsRefNoRoot, configPath, 'tsconfig.json')).toString())
+        ).toEqual(config);
+    });
+
+    // should not touch the ignore config
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderTsRefNoRoot, 'workspace-ignore', 'tsconfig.json')).toString())
+    ).toEqual({compilerOptions});
+});
+
 
 test('Support custom tsconfig names', async () => {
     const configName = 'tsconfig.dev.json';

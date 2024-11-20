@@ -1,7 +1,7 @@
 const execSh = require('exec-sh').promise;
 const fs = require('fs');
 
-const setup = async (rootFolder, configName, rootConfigName, createTsConfig, createPathMappings, usecase) => {
+const setup = async (rootFolder, configName, rootConfigName, createTsConfig, createPathMappings, usecase, withoutRootConfig,strict) => {
     if (!fs.existsSync(rootFolder)) {
         throw new Error(`folder is missing -> ${rootFolder}`);
     }
@@ -12,7 +12,7 @@ const setup = async (rootFolder, configName, rootConfigName, createTsConfig, cre
                 configName ? ` --configName ${configName}` : ''
             }${
                 rootConfigName ? ` --rootConfigName ${rootConfigName}` : ''
-            }${createTsConfig ? ` --createTsConfig` : ''}${createPathMappings ? ` --createPathMappings` : ''}${usecase ? ` --usecase ${usecase}` : ''}`,
+            }${createTsConfig ? ` --createTsConfig` : ''}${createPathMappings ? ` --createPathMappings` : ''}${usecase ? ` --usecase ${usecase}` : ''}${withoutRootConfig? '--withoutRootConfig' : ''}${strict? '--strict' : ''}`,
             {
                 cwd: rootFolder,
             }

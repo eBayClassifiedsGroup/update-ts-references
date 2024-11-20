@@ -17,6 +17,7 @@ npx update-ts-references --help
   Options:
     --configName    The name of the config files which needs to be updated. Default: tsconfig.json
     --rootConfigName    The name of the root config file which needs to be updated. Default: tsconfig.json
+    --withoutRootConfig  If you will not have a tsconfig in the root directory or don't want to update it. Default: false
     --check         Checks if updates would be necessary (without applying them)
     --help          Show help
     --createTsConfig  Create default TS configs for packages where the main entry in the package.json have a ts|tsx extension (Note: respects the --configName parameter)
@@ -24,7 +25,7 @@ npx update-ts-references --help
     --cwd           Set working directory. Default: /Users/john-doe/projects/my-project
     --verbose       Show verbose output. Default: false
     --usecase       Use a specific usecase configuration. Default: update-ts-references.yaml
-
+    --strict    Expects always a tsconfig.json in the package directory. Default: false
 ```
 
 or you add it as dev dependency and include it in the `postinstall` script in the package.json
@@ -97,6 +98,7 @@ Additional to that you can configure also the following options:
 - configName (default: tsconfig.json)
 - rootConfigName (default: tsconfig.json)
 - createPathMappings (default: false)
+- withoutRootConfig (default: false)
 
 Example configuration see [here](./test-scenarios/ts-options-yaml/update-ts-references.yaml)
 

@@ -16,13 +16,15 @@ const TSCONFIG_JSON = 'tsconfig.json'
 const defaultOptions = {
     configName: TSCONFIG_JSON,
     rootConfigName: TSCONFIG_JSON,
+    withoutRootConfig: false,
     createTsConfig: false,
     cwd: process.cwd(),
     verbose: false,
     help: false,
     check: false,
     createPathMappings: false,
-    usecase: 'update-ts-references.yaml'
+    usecase: 'update-ts-references.yaml',
+    strict: false
 };
 
 const getAllPackageJsons = async (workspaces, cwd) => {
@@ -166,6 +168,7 @@ const ensurePosixPathStyle = (reference) => ({
 });
 
 const updateTsConfig = (
+    strict,
     configName,
     references,
     paths,
@@ -217,6 +220,8 @@ const updateTsConfig = (
         return 0;
     } catch (error) {
         console.error(`could not read ${tsconfigFilePath}`, error);
+        if(strict)
+            throw new Error('Expect always a tsconfig.json in the package directory while running in strict mode')
     }
 };
 
@@ -232,6 +237,7 @@ const execute = async ({
                            verbose,
                            check,
                            usecase,
+                           strict,
                            ...configurable
                        }) => {
     let changesCount = 0;
@@ -259,7 +265,8 @@ const execute = async ({
     let {
         configName,
         rootConfigName,
-        createPathMappings
+        createPathMappings,
+        withoutRootConfig
     } = configurable
 
     if (fs.existsSync(path.join(cwd, usecase))) {
@@ -269,6 +276,7 @@ const execute = async ({
         configName = yamlConfig.configName ?? configName
         rootConfigName = yamlConfig.rootConfigName ?? rootConfigName
         createPathMappings = yamlConfig.createPathMappings ?? createPathMappings
+        withoutRootConfig = yamlConfig.withoutRootConfig ?? withoutRootConfig
         workspaces = [...(yamlConfig.packages ? yamlConfig.packages : []), ...(workspaces ? workspaces : [])];
 
         if (verbose) {
@@ -322,6 +330,7 @@ const execute = async ({
             }
 
             changesCount += updateTsConfig(
+                strict,
                 detectedConfig,
                 references,
                 paths,
@@ -347,12 +356,15 @@ const execute = async ({
         console.log('rootReferences', rootReferences);
         console.log('rootPaths', rootPaths);
     }
-    changesCount += updateTsConfig(
-        rootConfigName,
-        rootReferences,
-        rootPaths,
-        check, createPathMappings, {packageDir: cwd}
-    );
+    if(withoutRootConfig === false) {
+        changesCount += updateTsConfig(
+            strict,
+            rootConfigName,
+            rootReferences,
+            rootPaths,
+            check, createPathMappings, {packageDir: cwd},
+        );
+    }
 
     if (verbose) {
         console.log(`counted changes ${changesCount}`);

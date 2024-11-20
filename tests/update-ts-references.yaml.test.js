@@ -4,6 +4,7 @@ const fs = require('fs');
 const {parse} = require("comment-json")
 
 const rootFolderTsRefYaml = path.join(process.cwd(), 'test-run', 'ts-ref-yaml');
+const rootFolderTsRefNoRootYaml = path.join(process.cwd(), 'test-run', 'ts-ref-noroot-yaml');
 const rootFolderTsOptionsYaml = path.join(process.cwd(), 'test-run', 'ts-options-yaml');
 const rootFolderUsecaseYaml = path.join(process.cwd(), 'test-run', 'ts-options-usecase-yaml');
 
@@ -138,6 +139,41 @@ test('Support update-ts-reference.yaml workspaces', async () => {
     // should not touch the ignore config
     expect(
         parse(fs.readFileSync(path.join(rootFolderTsRefYaml, 'workspace-ignore', 'tsconfig.json')).toString())
+    ).toEqual({compilerOptions});
+});
+
+test('Support update-ts-reference.yaml workspaces with option withoutRootConfig = true', async () => {
+    await setup(rootFolderTsRefNoRootYaml);
+
+    const tsconfigs = [
+        [
+            '.',
+            {
+                compilerOptions: {
+                    composite: true,
+                },
+                files: []
+            },
+        ],
+        wsATsConfig,
+        wsBTsConfig,
+        wsCTsConfig,
+        wsDTsConfig,
+        fooATsConfig,
+        fooBTsConfig,
+    ]
+
+    tsconfigs.forEach((tsconfig) => {
+        const [configPath, config] = tsconfig;
+
+        expect(
+            parse(fs.readFileSync(path.join(rootFolderTsRefNoRootYaml, configPath, 'tsconfig.json')).toString())
+        ).toEqual(config);
+    });
+
+    // should not touch the ignore config
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderTsRefNoRootYaml, 'workspace-ignore', 'tsconfig.json')).toString())
     ).toEqual({compilerOptions});
 });
 
