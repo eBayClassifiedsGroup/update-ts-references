@@ -15,7 +15,8 @@ const {
   h = defaultOptions.help,
   check = defaultOptions.check,
   createPathMappings = defaultOptions.createPathMappings,
-  usecase = defaultOptions.usecase
+  usecase = defaultOptions.usecase,
+  strict = defaultOptions.strict
 } = minimist(process.argv.slice(2));
 if (help || h) {
   console.log(`
@@ -31,6 +32,7 @@ if (help || h) {
     --cwd           Set working directory. Default: ${defaultOptions.cwd}
     --verbose       Show verbose output. Default: ${defaultOptions.verbose}
     --usecase       The use case for the script. Default: ${defaultOptions.usecase}
+    --strict    Expects always a tsconfig.json in the package directory. Default: ${defaultOptions.strict}
   `);
   process.exit(0);
 }
@@ -46,7 +48,8 @@ const run = async () => {
       withoutRootConfig,
       createTsConfig,
       createPathMappings,
-      usecase
+      usecase,
+      strict
     });
 
     if (check && changesCount > 0) {

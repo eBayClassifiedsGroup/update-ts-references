@@ -13,6 +13,11 @@ const rootFolderYarnCheckNoChanges = path.join(
     'test-run',
     'yarn-ws-check-no-changes'
 );
+const rootFolderYarnCheckStrict = path.join(
+    process.cwd(),
+    'test-run',
+    'yarn-ws-check-strict'
+);
 const rootFolderYarnCheckPaths = path.join(
     process.cwd(),
     'test-run',
@@ -144,7 +149,7 @@ const tsconfigs = [
 test('Detect changes in references with the --check option', async () => {
     let errorCode = 0;
     try {
-        await execSh('npx update-ts-references --check', {
+        await execSh('npx update-ts-references --check --strict', {
             stdio: null,
             cwd: rootFolderYarnCheck,
         });
@@ -166,7 +171,7 @@ test('Detect changes in references with the --check option', async () => {
 test('No changes in references detected with the --check option', async () => {
     let errorCode = 0;
     try {
-        await execSh('npx update-ts-references --check', {
+        await execSh('npx update-ts-references --check --strict', {
             stdio: null,
             cwd: rootFolderYarnCheckNoChanges,
         });
@@ -185,6 +190,19 @@ test('No changes in references detected with the --check option', async () => {
     });
 });
 
+test('No changes in references detected with the --check option', async () => {
+    let errorCode = 0;
+    try {
+        await execSh('npx update-ts-references --check --strict', {
+            stdio: null,
+            cwd: rootFolderYarnCheckStrict,
+        });
+    } catch (e) {
+        errorCode = e.code;
+    }
+
+    expect(errorCode).toBe(1);
+});
 
 test('Detect changes in paths with the --check option', async () => {
     let errorCode = 0;

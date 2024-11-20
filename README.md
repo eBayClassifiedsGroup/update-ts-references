@@ -25,7 +25,7 @@ npx update-ts-references --help
     --cwd           Set working directory. Default: /Users/john-doe/projects/my-project
     --verbose       Show verbose output. Default: false
     --usecase       Use a specific usecase configuration. Default: update-ts-references.yaml
-
+    --strict    Expects always a tsconfig.json in the package directory. Default: false
 ```
 
 or you add it as dev dependency and include it in the `postinstall` script in the package.json
