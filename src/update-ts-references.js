@@ -16,6 +16,7 @@ const TSCONFIG_JSON = 'tsconfig.json'
 const defaultOptions = {
     configName: TSCONFIG_JSON,
     rootConfigName: TSCONFIG_JSON,
+    withoutRootConfig: false,
     createTsConfig: false,
     cwd: process.cwd(),
     verbose: false,
@@ -259,7 +260,8 @@ const execute = async ({
     let {
         configName,
         rootConfigName,
-        createPathMappings
+        createPathMappings,
+        withoutRootConfig
     } = configurable
 
     if (fs.existsSync(path.join(cwd, usecase))) {
@@ -269,6 +271,7 @@ const execute = async ({
         configName = yamlConfig.configName ?? configName
         rootConfigName = yamlConfig.rootConfigName ?? rootConfigName
         createPathMappings = yamlConfig.createPathMappings ?? createPathMappings
+        withoutRootConfig = yamlConfig.withoutRootConfig ?? withoutRootConfig
         workspaces = [...(yamlConfig.packages ? yamlConfig.packages : []), ...(workspaces ? workspaces : [])];
 
         if (verbose) {
@@ -347,12 +350,14 @@ const execute = async ({
         console.log('rootReferences', rootReferences);
         console.log('rootPaths', rootPaths);
     }
-    changesCount += updateTsConfig(
-        rootConfigName,
-        rootReferences,
-        rootPaths,
-        check, createPathMappings, {packageDir: cwd}
-    );
+    if(withoutRootConfig === false) {
+        changesCount += updateTsConfig(
+            rootConfigName,
+            rootReferences,
+            rootPaths,
+            check, createPathMappings, {packageDir: cwd}
+        );
+    }
 
     if (verbose) {
         console.log(`counted changes ${changesCount}`);
