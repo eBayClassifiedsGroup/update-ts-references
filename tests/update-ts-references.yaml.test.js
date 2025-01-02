@@ -184,7 +184,8 @@ test('receive options via the config', async () => {
         {
             compilerOptions: {
                 composite: true,
-            },
+                paths:{"workspace-a": ["workspace-a/src"],"workspace-b": ["workspace-b/src"]}
+},
             files: [],
             references: [
                 {
@@ -240,6 +241,7 @@ test('receive options for a different usecase', async () => {
         {
             compilerOptions: {
                 composite: true,
+                paths:{"workspace-a": ["workspace-a/src"],"workspace-b": ["workspace-b/src"]}
             },
             files: [],
             references: [

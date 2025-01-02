@@ -1,6 +1,6 @@
 {
   "name": "update-ts-references",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "Updates TypeScript references automatically while using workspaces",
   "bin": "src/index.js",
   "scripts": {
@@ -39,6 +39,7 @@
   "license": "MIT",
   "keywords": [
     "typescript",
+    "intellisense",
     "project references",
     "tool",
     "util",
@@ -49,7 +50,8 @@
     "monorepo",
     "packages",
     "npm",
-    "automatic"
+    "automatic",
+    "update"
   ],
   "repository": {
     "type": "git",
