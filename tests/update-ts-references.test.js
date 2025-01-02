@@ -228,7 +228,7 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "foo-c": ["utils/foos/foo-c/src"]   }
+                paths: { "foo-a": ["utils/foos/foo-a/src"] ,"foo-b": ["utils/foos/foo-b/src"] ,"workspace-a": ["workspace-a/src"],"workspace-b": ["workspace-b"]   }
             },
             files: [],
             references: [
@@ -253,7 +253,7 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 ...compilerOptions,
-                paths: {"foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b/src"]}
+                paths: {"foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b"]}
             },
             references: [
                 {
@@ -269,7 +269,7 @@ test('create paths mappings ', async () => {
     const wsBTsConfig = [
         './workspace-b',
         {
-            compilerOptions: {...compilerOptions, paths: {"foo-b": ["../utils/foos/foo-b/src"]}},
+            compilerOptions: {...compilerOptions,rootDir: '.', paths: {"foo-b": ["../utils/foos/foo-b/src"]}},
             references: [
                 {
                     path: '../utils/foos/foo-b',
