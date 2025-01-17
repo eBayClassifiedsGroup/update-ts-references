@@ -99,6 +99,7 @@ Additional to that you can configure also the following options:
 - rootConfigName (default: tsconfig.json)
 - createPathMappings (default: false)
 - withoutRootConfig (default: false)
+- ignorePathMappings (default: [])
 
 Example configuration see [here](./test-scenarios/ts-options-yaml/update-ts-references.yaml)
 

@@ -1,0 +1,6 @@
+configName: 'tsconfig.json'
+rootConfigName: 'tsconfig.json'
+createPathMappings: true
+ignorePathMappings:
+  - workspace-a
+

@@ -1,6 +1,8 @@
 configName: 'tsconfig.dev.json'
 rootConfigName: 'tsconfig.root.json'
 createPathMappings: true
+ignorePathMappings:
+    - name-of-the-package
 packages:
   # all packages in subdirs of packages/ and components/
   - 'workspace-a'

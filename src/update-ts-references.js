@@ -225,8 +225,10 @@ const updateTsConfig = (
     }
 };
 
-function getPathsFromReferences(references, tsconfigMap) {
+function getPathsFromReferences(references, tsconfigMap, ignorePathMappings
+ = []) {
     return references.reduce((paths, ref) => {
+        if(ignorePathMappings.includes(ref.name)) return paths
        const rootFolder= tsconfigMap[ref.name]?.compilerOptions?.rootDir  ?? 'src'
         return {
         ...paths,
@@ -271,6 +273,8 @@ const execute = async ({
         withoutRootConfig
     } = configurable
 
+    let  ignorePathMappings = []
+
     if (fs.existsSync(path.join(cwd, usecase))) {
         const yamlConfig = yaml.load(
             fs.readFileSync(path.join(cwd, usecase))
@@ -280,12 +284,15 @@ const execute = async ({
         createPathMappings = yamlConfig.createPathMappings ?? createPathMappings
         withoutRootConfig = yamlConfig.withoutRootConfig ?? withoutRootConfig
         workspaces = [...(yamlConfig.packages ? yamlConfig.packages : []), ...(workspaces ? workspaces : [])];
+        ignorePathMappings = yamlConfig.ignorePathMappings ?? []
 
         if (verbose) {
             console.log(`configName ${configName}`);
             console.log(`rootConfigName ${rootConfigName}`);
             console.log(`createPathMappings ${createPathMappings}`)
             console.log('joined workspaces', workspaces);
+            console.log('ignorePathMappings', ignorePathMappings
+);
         }
     }
 
@@ -341,7 +348,7 @@ const execute = async ({
                 verbose
             ) || []).map(ensurePosixPathStyle);
 
-            const paths = getPathsFromReferences(references, tsconfigMap)
+            const paths = getPathsFromReferences(references, tsconfigMap, ignorePathMappings)
 
             if (verbose) {
                 console.log(`references of ${packageName}`, references);
@@ -369,7 +376,7 @@ const execute = async ({
     });
 
     rootReferences = (rootReferences || []).map(ensurePosixPathStyle);
-    rootPaths = getPathsFromReferences((rootReferences || []).map(ensurePosixPathStyle), tsconfigMap)
+    rootPaths = getPathsFromReferences((rootReferences || []).map(ensurePosixPathStyle), tsconfigMap, ignorePathMappings)
 
     if (verbose) {
         console.log('rootReferences', rootReferences);

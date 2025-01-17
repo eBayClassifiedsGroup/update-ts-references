@@ -18,6 +18,7 @@ const rootFolderYarnCreate = path.join(
 );
 const rootFolderPnpm = path.join(process.cwd(), 'test-run', 'pnpm');
 const rootFolderTsPaths = path.join(process.cwd(), 'test-run', 'ts-paths');
+const rootFolderTsPathsIgnore = path.join(process.cwd(), 'test-run', 'ts-paths-ignore');
 
 const rootFolderLerna = path.join(process.cwd(), 'test-run', 'lerna');
 const rootFolderConfigName = path.join(
@@ -308,6 +309,100 @@ test('create paths mappings ', async () => {
 
         expect(
             parse(fs.readFileSync(path.join(rootFolderTsPaths, configPath, 'tsconfig.json')).toString())
+        ).toEqual(config);
+    });
+
+});
+
+test('create paths mappings with ignorePathMappings', async () => {
+    await setup(rootFolderTsPathsIgnore, undefined, undefined, undefined, true);
+
+
+    const rootTsConfig = [
+        '.',
+        {
+            compilerOptions: {
+                composite: true,
+                paths: { "foo-a": ["utils/foos/foo-a/src"] ,"foo-b": ["utils/foos/foo-b/src"] ,"workspace-b": ["workspace-b"]   }
+            },
+            files: [],
+            references: [
+                {
+                    path: 'workspace-a',
+                },
+                {
+                    path: 'workspace-b',
+                },
+                {
+                    path: 'utils/foos/foo-a',
+                },
+                {
+                    path: 'utils/foos/foo-b',
+                },
+            ],
+        },
+    ];
+
+    const wsATsConfig = [
+        './workspace-a',
+        {
+            compilerOptions: {
+                ...compilerOptions,
+                paths: {"foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b"]}
+            },
+            references: [
+                {
+                    path: '../utils/foos/foo-a',
+                },
+                {
+                    path: '../workspace-b',
+                },
+            ],
+        },
+    ];
+
+    const wsBTsConfig = [
+        './workspace-b',
+        {
+            compilerOptions: {...compilerOptions,rootDir: '.', paths: {"foo-b": ["../utils/foos/foo-b/src"]}},
+            references: [
+                {
+                    path: '../utils/foos/foo-b',
+                },
+            ],
+        },
+    ];
+
+    const fooATsConfig = [
+        './utils/foos/foo-a',
+        {
+            compilerOptions: {
+                ...compilerOptions,
+                rootDir: "src",
+                paths: {
+                    "foo-b": ["../foo-b/src"]
+                },
+            },
+            references: [
+                {
+                    path: '../foo-b',
+                },
+            ],
+        },
+    ];
+
+    const fooBTsConfig = [
+        './utils/foos/foo-b',
+        {
+            compilerOptions,
+            references: undefined,
+        },
+    ];
+    [rootTsConfig, wsATsConfig, wsBTsConfig, fooATsConfig, fooBTsConfig].forEach((tsconfig) => {
+        const [configPath, config] = tsconfig;
+
+        expect(
+            parse(fs.readFileSync(path.join(rootFolderTsPathsIgnore, configPath, 'tsconfig.json')).toString())
         ).toEqual(config);
     });
 
