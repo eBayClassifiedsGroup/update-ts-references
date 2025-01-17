@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": { "replace-me": ["../utils/old-one/src"]},
+  },
+  "references": [
+    {
+      "path": "../utils/foos/foo-a"
+    },
+    {
+      "path": "../workspace-b"
+    }
+  ]
+}
