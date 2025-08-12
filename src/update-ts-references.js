@@ -43,7 +43,7 @@ const getAllPackageJsons = async (workspaces, cwd) => {
         workspaceGlobs.map(
             (workspace) =>
                 new Promise((resolve, reject) => {
-                    glob(`${workspace}/${PACKAGE_JSON}`, {cwd}, (error, files) => {
+                    glob(`${workspace}/${PACKAGE_JSON}`, { cwd }, (error, files) => {
                         if (error) {
                             reject(error);
                         }
@@ -103,7 +103,7 @@ const getPackageNamesAndPackageDir = (packageFilePaths, cwd) =>
     packageFilePaths.reduce((map, packageFilePath) => {
         const fullPackageFilePath = path.join(cwd, packageFilePath);
         const packageJson = require(fullPackageFilePath);
-        const {name} = packageJson;
+        const { name } = packageJson;
         map.set(name, {
             packageDir: path.dirname(fullPackageFilePath),
             hasTsEntry: /\.(ts|tsx)$/.test((packageJson.main ? packageJson.main : ''))
@@ -113,7 +113,7 @@ const getPackageNamesAndPackageDir = (packageFilePaths, cwd) =>
 
 const getReferencesFromDependencies = (
     configName,
-    {packageDir},
+    { packageDir },
     packageName,
     packagesMap,
     verbose
@@ -142,7 +142,7 @@ const getReferencesFromDependencies = (
     return Object.keys(mergedDependencies)
         .reduce((referenceArray, dependency) => {
             if (packagesMap.has(dependency)) {
-                const {packageDir: dependencyDir} = packagesMap.get(dependency);
+                const { packageDir: dependencyDir } = packagesMap.get(dependency);
                 const relativePath = path.relative(packageDir, dependencyDir);
                 const detectedConfig = detectTSConfig(dependencyDir, configName)
                 if (detectedConfig !== null) {
@@ -174,7 +174,7 @@ const updateTsConfig = (
     paths,
     check,
     createPathMappings = false,
-    {packageDir} = {packageDir: process.cwd()},
+    { packageDir } = { packageDir: process.cwd() },
 ) => {
     const tsconfigFilePath = path.join(packageDir, configName);
 
@@ -183,7 +183,7 @@ const updateTsConfig = (
 
         const currentReferences = config.references || [];
 
-        const mergedReferences = references.map(({path}) => ({
+        const mergedReferences = references.map(({ path }) => ({
             path,
             ...currentReferences.find((currentRef) => currentRef.path === path),
         }));
@@ -205,13 +205,13 @@ const updateTsConfig = (
                     assign(compilerOptions,
                         paths && Object.keys(paths).length > 0 ? {
                             paths
-                        } : {paths: undefined})
+                        } : { paths: undefined })
 
                 const newTsConfig = assign(config,
-                    {
+                    Object.keys(compilerOptions).length > 0 ? {
                         compilerOptions,
                         references: mergedReferences.length ? mergedReferences : undefined,
-                    }
+                    } : { references: mergedReferences.length ? mergedReferences : undefined, }
                 );
                 fs.writeFileSync(tsconfigFilePath, stringify(newTsConfig, null, 2) + '\n');
             }
@@ -220,30 +220,31 @@ const updateTsConfig = (
         return 0;
     } catch (error) {
         console.error(`could not read ${tsconfigFilePath}`, error);
-        if(strict)
+        if (strict)
             throw new Error('Expect always a tsconfig.json in the package directory while running in strict mode')
     }
 };
 
 function getPathsFromReferences(references, tsconfigMap, ignorePathMappings
- = []) {
+    = []) {
     return references.reduce((paths, ref) => {
-        if(ignorePathMappings.includes(ref.name)) return paths
-       const rootFolder= tsconfigMap[ref.name]?.compilerOptions?.rootDir  ?? 'src'
+        if (ignorePathMappings.includes(ref.name)) return paths
+        const rootFolder = tsconfigMap[ref.name]?.compilerOptions?.rootDir ?? 'src'
         return {
-        ...paths,
-        [`${ref.name}`]: [`${ref.folder}${rootFolder === '.' ? '' : `/${rootFolder}`}`],
-    }}, {});
+            ...paths,
+            [`${ref.name}`]: [`${ref.folder}${rootFolder === '.' ? '' : `/${rootFolder}`}`],
+        }
+    }, {});
 }
 
 const execute = async ({
-                           cwd, createTsConfig,
-                           verbose,
-                           check,
-                           usecase,
-                           strict,
-                           ...configurable
-                       }) => {
+    cwd, createTsConfig,
+    verbose,
+    check,
+    usecase,
+    strict,
+    ...configurable
+}) => {
     let changesCount = 0;
     // eslint-disable-next-line no-console
     console.log('updating tsconfigs');
@@ -273,7 +274,7 @@ const execute = async ({
         withoutRootConfig
     } = configurable
 
-    let  ignorePathMappings = []
+    let ignorePathMappings = []
 
     if (fs.existsSync(path.join(cwd, usecase))) {
         const yamlConfig = yaml.load(
@@ -292,7 +293,7 @@ const execute = async ({
             console.log(`createPathMappings ${createPathMappings}`)
             console.log('joined workspaces', workspaces);
             console.log('ignorePathMappings', ignorePathMappings
-);
+            );
         }
     }
 
@@ -382,13 +383,13 @@ const execute = async ({
         console.log('rootReferences', rootReferences);
         console.log('rootPaths', rootPaths);
     }
-    if(withoutRootConfig === false) {
+    if (withoutRootConfig === false) {
         changesCount += updateTsConfig(
             strict,
             rootConfigName,
             rootReferences,
             rootPaths,
-            check, createPathMappings, {packageDir: cwd},
+            check, createPathMappings, { packageDir: cwd },
         );
     }
 
@@ -398,4 +399,4 @@ const execute = async ({
     return changesCount;
 };
 
-module.exports = {execute, defaultOptions};
+module.exports = { execute, defaultOptions };

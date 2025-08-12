@@ -1,9 +1,10 @@
 const path = require('path');
 const fs = require('fs');
-const {parse} = require("comment-json")
-const {setup} = require('./setup');
+const { parse } = require("comment-json")
+const { setup } = require('./setup');
 
 const rootFolderYarn = path.join(process.cwd(), 'test-run', 'yarn-ws');
+const rootFolderYarnEmptyCompilerOptions = path.join(process.cwd(), 'test-run', 'yarn-ws-empty-compilerOptions')
 const rootFolderYarnNohoist = path.join(
     process.cwd(),
     'test-run',
@@ -27,7 +28,7 @@ const rootFolderConfigName = path.join(
     'yarn-ws-custom-tsconfig-names'
 );
 
-const compilerOptions = {outDir: 'dist', rootDir: 'src'};
+const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
 
 const rootTsConfig = [
@@ -168,6 +169,52 @@ const tsconfigsIncludingPrepend = [
     fooBTsConfig,
 ];
 
+test('avoid adding an empty compilerOptions', async () => {
+    const rootTsConfig = [
+        '.',
+        {
+            extends: "./tsconfig.base.json",
+            references: [
+                {
+                    path: 'workspace-a',
+                },
+                {
+                    path: 'workspace-b',
+                },
+            ],
+        },
+    ];
+    const wsATsConfig = [
+        './workspace-a',
+        {
+            compilerOptions,
+            references: [
+                {
+                    path: '../workspace-b',
+                },
+            ],
+        },
+    ];
+
+    const wsBTsConfig = [
+        './workspace-b',
+        {
+            "extends": "./tsconfig.base.json"
+        },
+    ];
+    const configs = [rootTsConfig, wsATsConfig, wsBTsConfig]
+
+    await setup(rootFolderYarnEmptyCompilerOptions)
+
+    configs.forEach((tsconfig) => {
+        const [configPath, config] = tsconfig;
+
+        expect(
+            parse(fs.readFileSync(path.join(rootFolderYarnEmptyCompilerOptions, configPath, 'tsconfig.json')).toString())
+        ).toEqual(config);
+    })
+})
+
 test('Support yarn and npm workspaces', async () => {
     await setup(rootFolderYarn);
 
@@ -229,7 +276,7 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "foo-a": ["utils/foos/foo-a/src"] ,"foo-b": ["utils/foos/foo-b/src"] ,"workspace-a": ["workspace-a/src"],"workspace-b": ["workspace-b"]   }
+                paths: { "foo-a": ["utils/foos/foo-a/src"], "foo-b": ["utils/foos/foo-b/src"], "workspace-a": ["workspace-a/src"], "workspace-b": ["workspace-b"] }
             },
             files: [],
             references: [
@@ -254,7 +301,7 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 ...compilerOptions,
-                paths: {"foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b"]}
+                paths: { "foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b"] }
             },
             references: [
                 {
@@ -270,7 +317,7 @@ test('create paths mappings ', async () => {
     const wsBTsConfig = [
         './workspace-b',
         {
-            compilerOptions: {...compilerOptions,rootDir: '.', paths: {"foo-b": ["../utils/foos/foo-b/src"]}},
+            compilerOptions: { ...compilerOptions, rootDir: '.', paths: { "foo-b": ["../utils/foos/foo-b/src"] } },
             references: [
                 {
                     path: '../utils/foos/foo-b',
@@ -323,7 +370,7 @@ test('create paths mappings with ignorePathMappings', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "foo-a": ["utils/foos/foo-a/src"] ,"foo-b": ["utils/foos/foo-b/src"] ,"workspace-b": ["workspace-b"]   }
+                paths: { "foo-a": ["utils/foos/foo-a/src"], "foo-b": ["utils/foos/foo-b/src"], "workspace-b": ["workspace-b"] }
             },
             files: [],
             references: [
@@ -348,7 +395,7 @@ test('create paths mappings with ignorePathMappings', async () => {
         {
             compilerOptions: {
                 ...compilerOptions,
-                paths: {"foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b"]}
+                paths: { "foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b"] }
             },
             references: [
                 {
@@ -364,7 +411,7 @@ test('create paths mappings with ignorePathMappings', async () => {
     const wsBTsConfig = [
         './workspace-b',
         {
-            compilerOptions: {...compilerOptions,rootDir: '.', paths: {"foo-b": ["../utils/foos/foo-b/src"]}},
+            compilerOptions: { ...compilerOptions, rootDir: '.', paths: { "foo-b": ["../utils/foos/foo-b/src"] } },
             references: [
                 {
                     path: '../utils/foos/foo-b',
@@ -461,7 +508,7 @@ test('Test create tsconfig', async () => {
 });
 
 test('Support option --withoutRootConfig', async () => {
-    await setup(rootFolderTsRefNoRoot,undefined,undefined,undefined,undefined,undefined,true);
+    await setup(rootFolderTsRefNoRoot, undefined, undefined, undefined, undefined, undefined, true);
 
     const tsconfigs = [
         [
@@ -492,7 +539,7 @@ test('Support option --withoutRootConfig', async () => {
     // should not touch the ignore config
     expect(
         parse(fs.readFileSync(path.join(rootFolderTsRefNoRoot, 'workspace-ignore', 'tsconfig.json')).toString())
-    ).toEqual({compilerOptions});
+    ).toEqual({ compilerOptions });
 });
 
 
