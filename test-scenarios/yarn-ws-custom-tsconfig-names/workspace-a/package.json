@@ -2,9 +2,10 @@
   "name": "workspace-a",
   "version": "1.0.0",
   "dependencies": {
+    "js-only": "1.0.0",
     "workspace-b": "1.0.0"
   },
   "devDependencies": {
-      "foo-a": "1.0.0"
+    "foo-a": "1.0.0"
   }
 }

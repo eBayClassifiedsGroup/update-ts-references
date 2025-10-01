@@ -1,0 +1,7 @@
+{
+  "name": "workspace-c",
+  "version": "1.0.0",
+  "dependencies": {
+    "js-only": "1.0.0"
+  }
+}

@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
-const {parse} = require("comment-json")
-const {promise: execSh} = require("exec-sh");
+const { parse } = require("comment-json")
+const { promise: execSh } = require("exec-sh");
 
 const rootFolderYarnCheck = path.join(
     process.cwd(),
@@ -29,7 +29,7 @@ const rootFolderYarnCheckPathsNoChanges = path.join(
     'yarn-ws-check-paths-no-changes'
 );
 
-const compilerOptions = {outDir: 'dist', rootDir: 'src'};
+const compilerOptions = { outDir: 'dist', rootDir: 'src' };
 
 const rootTsConfig = [
     '.',
@@ -215,7 +215,7 @@ test('Detect changes in paths with the --check option', async () => {
         errorCode = e.code;
     }
 
-    expect(errorCode).toBe(3);
+    expect(errorCode).toBe(4);
     const root = [
         '.',
         {
@@ -259,14 +259,26 @@ test('Detect changes in paths with the --check option', async () => {
         },
     ];
 
+    const c = [
+        './workspace-c',
+        {
+            compilerOptions,
+            references: [
+                {
+                    "path": "../utils/foos/js-only/jsconfig.json",
+                }
+            ],
+        },
+    ];
+
     const fooA = [
         './utils/foos/foo-a',
         {
-        compilerOptions: {...compilerOptions, "paths": { "remove-me": ["../utils/remove/src"]}},
+            compilerOptions: { ...compilerOptions, "paths": { "remove-me": ["../utils/remove/src"] } },
         },
     ];
-    [root,a,b,fooA].forEach((tsconfig) => {
-        const [configPath,config] = tsconfig;
+    [root, a, b, c, fooA].forEach((tsconfig) => {
+        const [configPath, config] = tsconfig;
 
         expect(
             parse(fs.readFileSync(path.join(rootFolderYarnCheckPaths, configPath, 'tsconfig.json')).toString())
@@ -293,7 +305,7 @@ test('No changes paths detected with the --check option', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "foo-b": ["utils/foos/foo-b/src"]}
+                paths: { "foo-b": ["utils/foos/foo-b/src"] }
             },
             files: [],
             references: [
@@ -315,7 +327,7 @@ test('No changes paths detected with the --check option', async () => {
         {
             compilerOptions: {
                 ...compilerOptions,
-                paths: { "foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b/src"],  }
+                paths: { "foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b/src"], }
             },
             references: [
                 {

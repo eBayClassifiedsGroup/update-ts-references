@@ -301,11 +301,17 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 ...compilerOptions,
-                paths: { "foo-a": ["../utils/foos/foo-a/src"], "workspace-b": ["../workspace-b"] }
+                paths: { "foo-a": ["../utils/foos/foo-a/src"], "js-only": ["../utils/foos/js-only/src"], "js-only2": ["../utils/foos/js-only2/src"], "workspace-b": ["../workspace-b"] }
             },
             references: [
                 {
                     path: '../utils/foos/foo-a',
+                },
+                {
+                    path: '../utils/foos/js-only/jsconfig.json',
+                },
+                {
+                    path: '../utils/foos/js-only2/jsconfig.json',
                 },
                 {
                     path: '../workspace-b',
@@ -590,6 +596,9 @@ test('Support custom tsconfig names', async () => {
                         prepend: false,
                     },
                     {
+                        path: '../utils/foos/js-only/jsconfig.dev.json',
+                    },
+                    {
                         path: '../workspace-b/tsconfig.dev.json',
                     },
                 ],
@@ -604,6 +613,9 @@ test('Support custom tsconfig names', async () => {
                 references: [
                     {
                         path: '../../utils/foos/foo-a/tsconfig.dev.json',
+                    },
+                    {
+                        path: '../../utils/foos/js-only2/jsconfig.json',
                     },
                 ],
             },
