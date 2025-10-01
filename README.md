@@ -15,7 +15,7 @@ npx update-ts-references --help
   Usage: update-ts-references [options]
 
   Options:
-    --configName    The name of the config files which needs to be updated. Default: tsconfig.json
+    --configName    The name of the config files which needs to be updated. Default: tsconfig.json 
     --rootConfigName    The name of the root config file which needs to be updated. Default: tsconfig.json
     --withoutRootConfig  If you will not have a tsconfig in the root directory or don't want to update it. Default: false
     --check         Checks if updates would be necessary (without applying them)
@@ -70,7 +70,7 @@ The output for the created file looks like the following
 ```
 
 ## using --createPathMappings
-will create path mappings under `compilerOptions` for a better IDE support. It assumes the source files are under `src`.
+will create path mappings under `compilerOptions` for a better IDE support. The generated mappings respect the `rootDir` defined in the referenced `tsconfig.json` or `jsconfig.json` and only fall back to `src` when no `rootDir` is provided.
 
 ```json
 {
@@ -105,6 +105,14 @@ Example configuration see [here](./test-scenarios/ts-options-yaml/update-ts-refe
 
 ### using multiple configurations for different usecases
 Executing update-ts-references with different configurations via the parameter `--usecase`.
+
+## about jsconfig.json support 
+When a dependency does not ship a `tsconfig.json` but provides a `jsconfig.json`, the reference automatically targets that file and the path mappings pick up its `rootDir` as well, if `--createPathMappings` is enabled. `jsconfig.json` files participate in package-level `references`, but they stay out of the root `tsconfig.json`.
+
+### in combination with the --configName argument
+Currently the name of the config file derives from the the configName which is `tsconfig.json` and would look for `jsconfig.json`. 
+
+Example: ` --configName tsconfig.test.json` would look for `jsconfig.test.json`
 
 ## FAQ
 ### Why is my pnpm workspace alias not working?
