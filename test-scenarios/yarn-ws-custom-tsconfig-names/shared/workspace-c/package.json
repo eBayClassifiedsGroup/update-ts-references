@@ -2,7 +2,8 @@
   "name": "workspace-c",
   "version": "1.0.0",
   "dependencies": {
-    "cross-env": "5.0.5"
+    "cross-env": "5.0.5",
+    "js-only2": "1.0.0"
   },
   "peerDependencies": {
     "foo-a": "1.0.0"

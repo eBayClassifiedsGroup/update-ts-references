@@ -5,6 +5,6 @@
     "workspace-b": "1.0.0"
   },
   "devDependencies": {
-      "foo-a": "1.0.0"
+    "foo-a": "1.0.0"
   }
 }

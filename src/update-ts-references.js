@@ -12,6 +12,7 @@ const assert = require('assert').strict;
 
 const PACKAGE_JSON = 'package.json';
 const TSCONFIG_JSON = 'tsconfig.json'
+const JSCONFIG_JSON = 'jsconfig.json'
 
 const defaultOptions = {
     configName: TSCONFIG_JSON,
@@ -71,6 +72,15 @@ const getAllPackageJsons = async (workspaces, cwd) => {
             )
         );
 };
+
+const detectJSConfig = (directory, configName) => {
+    const jsConfigName = configName.replace(/^ts/, 'js')
+    let detectedConfig = fs.existsSync(path.join(directory, jsConfigName)) ? jsConfigName : null
+    if (jsConfigName !== JSCONFIG_JSON && detectedConfig === null) {
+        detectedConfig = fs.existsSync(path.join(directory, JSCONFIG_JSON)) ? JSCONFIG_JSON : null
+    }
+    return detectedConfig
+}
 
 const detectTSConfig = (directory, configName, createConfig, cwd) => {
     let detectedConfig = fs.existsSync(path.join(directory, configName)) ? configName : null
@@ -154,6 +164,18 @@ const getReferencesFromDependencies = (
                             folder: relativePath,
                         },
                     ];
+                } else {
+                    const detectedJsConfig = detectJSConfig(dependencyDir, configName)
+                    if (detectedJsConfig !== null) {
+                        return [
+                            ...referenceArray,
+                            {
+                                name: dependency,
+                                path: path.join(relativePath, detectedJsConfig),
+                                folder: relativePath,
+                            },
+                        ];
+                    }
                 }
             }
             return referenceArray;
@@ -225,11 +247,12 @@ const updateTsConfig = (
     }
 };
 
-function getPathsFromReferences(references, tsconfigMap, ignorePathMappings
+function getPathsFromReferences(references, tsconfigMap, jsconfigMap, ignorePathMappings
     = []) {
     return references.reduce((paths, ref) => {
         if (ignorePathMappings.includes(ref.name)) return paths
-        const rootFolder = tsconfigMap[ref.name]?.compilerOptions?.rootDir ?? 'src'
+        const config = tsconfigMap[ref.name] ?? jsconfigMap[ref.name]
+        const rootFolder = config?.compilerOptions?.rootDir ?? 'src'
         return {
             ...paths,
             [`${ref.name}`]: [`${ref.folder}${rootFolder === '.' ? '' : `/${rootFolder}`}`],
@@ -316,6 +339,7 @@ const execute = async ({
     let rootReferences = [];
     let rootPaths = [];
     let tsconfigMap = {}
+    let jsconfigMap = {}
     packagesMap.forEach((packageEntry, packageName) => {
         const detectedConfig = detectTSConfig(packageEntry.packageDir, configName, packageEntry.hasTsEntry && createTsConfig, cwd)
 
@@ -327,6 +351,25 @@ const execute = async ({
                 [packageName]: {
                     detectedConfig,
                     compilerOptions
+                }
+            }
+        } else {
+            const detectedJsConfig = detectJSConfig(packageEntry.packageDir, configName)
+            if (detectedJsConfig) {
+
+                let compilerOptions
+                try {
+                    compilerOptions = parse(fs.readFileSync(path.join(packageEntry.packageDir, detectedJsConfig)).toString()).compilerOptions
+                } catch {
+                    //ignore
+                }
+
+                jsconfigMap = {
+                    ...jsconfigMap,
+                    [packageName]: {
+                        detectedConfig,
+                        compilerOptions
+                    }
                 }
             }
         }
@@ -349,7 +392,7 @@ const execute = async ({
                 verbose
             ) || []).map(ensurePosixPathStyle);
 
-            const paths = getPathsFromReferences(references, tsconfigMap, ignorePathMappings)
+            const paths = getPathsFromReferences(references, tsconfigMap, jsconfigMap, ignorePathMappings)
 
             if (verbose) {
                 console.log(`references of ${packageName}`, references);
@@ -366,8 +409,11 @@ const execute = async ({
                 packageEntry
             );
         } else {
-            // eslint-disable-next-line no-console
-            console.log(`NO ${configName === TSCONFIG_JSON ? configName : `${configName} nor ${TSCONFIG_JSON}`} for ${packageName}`);
+            const detectedJsConfig = jsconfigMap[packageName]?.detectedConfig
+            if (!detectedJsConfig) {
+                // eslint-disable-next-line no-console
+                console.log(`NO ${configName === TSCONFIG_JSON ? configName : `${configName} nor ${TSCONFIG_JSON}`} for ${packageName}`);
+            }
             rootPaths.push({
                 name: packageName,
                 path: path.relative(cwd, packageEntry.packageDir),
@@ -377,7 +423,7 @@ const execute = async ({
     });
 
     rootReferences = (rootReferences || []).map(ensurePosixPathStyle);
-    rootPaths = getPathsFromReferences((rootReferences || []).map(ensurePosixPathStyle), tsconfigMap, ignorePathMappings)
+    rootPaths = getPathsFromReferences((rootReferences || []).map(ensurePosixPathStyle), tsconfigMap, {}, ignorePathMappings)
 
     if (verbose) {
         console.log('rootReferences', rootReferences);

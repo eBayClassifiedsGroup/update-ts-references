@@ -5,6 +5,7 @@
   "workspaces": [
     "workspace-a",
     "workspace-b",
+    "workspace-c",
     "shared/*",
     "utils/**"
   ],
