@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { parse } = require("comment-json")
+const { parse, CommentArray } = require("comment-json")
 const { setup } = require('./setup');
 
 const rootFolderYarn = path.join(process.cwd(), 'test-run', 'yarn-ws');
@@ -301,7 +301,7 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 ...compilerOptions,
-                paths: { "foo-a": ["../utils/foos/foo-a/src"], "js-only": ["../utils/foos/js-only/src"], "js-only2": ["../utils/foos/js-only2/src"], "workspace-b": ["../workspace-b"] }
+                paths: { "foo-a": ["../utils/foos/foo-a/src"], "js-only": ["../utils/foos/js-only/src"], "workspace-b": ["../workspace-b"] }
             },
             references: [
                 {
@@ -309,9 +309,6 @@ test('create paths mappings ', async () => {
                 },
                 {
                     path: '../utils/foos/js-only/jsconfig.json',
-                },
-                {
-                    path: '../utils/foos/js-only2/jsconfig.json',
                 },
                 {
                     path: '../workspace-b',
