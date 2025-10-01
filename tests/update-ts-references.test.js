@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { parse, CommentArray } = require("comment-json")
+const { parse } = require("comment-json")
 const { setup } = require('./setup');
 
 const rootFolderYarn = path.join(process.cwd(), 'test-run', 'yarn-ws');
