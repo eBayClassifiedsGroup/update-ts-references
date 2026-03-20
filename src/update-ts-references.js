@@ -41,7 +41,9 @@ const getAllPackageJsons = async (workspaces, cwd) => {
     });
 
     return Promise.all(
-        workspaceGlobs.map((workspace) => fastGlob(`${workspace}/${PACKAGE_JSON}`, { cwd, onlyFiles: true }))
+        workspaceGlobs.map((workspace) =>
+            fastGlob(`${workspace}/${PACKAGE_JSON}`, { cwd, onlyFiles: true }).then((files) => files.sort())
+        )
     )
         .then((allPackages) =>
             allPackages.reduce(
@@ -108,6 +110,16 @@ const getPackageNamesAndPackageDir = (packageFilePaths, cwd) =>
         });
         return map;
     }, new Map());
+
+const getDependencyNamesFromPackageJson = ({
+    dependencies = {},
+    peerDependencies = {},
+    devDependencies = {},
+} = {}) => Object.keys({
+    ...dependencies,
+    ...peerDependencies,
+    ...devDependencies,
+});
 
 const getReferencesFromDependencies = (
     configName,
@@ -325,8 +337,8 @@ const execute = async ({
 
     let tsconfigMap = {}
     let jsconfigMap = {}
-    const referencesMap = {}
     const referencedPackageNames = new Set()
+    const explicitRootReferenceNames = new Set(getDependencyNamesFromPackageJson(packageJson))
     const rootReferenceCandidates = []
     packagesMap.forEach((packageEntry, packageName) => {
         const detectedConfig = detectTSConfig(packageEntry.packageDir, configName, packageEntry.hasTsEntry && createTsConfig, cwd)
@@ -379,7 +391,6 @@ const execute = async ({
                 packagesMap,
                 verbose
             ) || []).map(ensurePosixPathStyle);
-            referencesMap[packageName] = references
             references.forEach(({ name }) => referencedPackageNames.add(name))
 
             const paths = getPathsFromReferences(references, tsconfigMap, jsconfigMap, ignorePathMappings)
@@ -406,7 +417,9 @@ const execute = async ({
         }
     });
 
-    const rootReferences = rootReferenceCandidates.filter(({ name }) => !referencedPackageNames.has(name));
+    const rootReferences = rootReferenceCandidates.filter(({ name }) =>
+        explicitRootReferenceNames.has(name) || !referencedPackageNames.has(name)
+    );
     const rootPaths = getPathsFromReferences(rootReferences, tsconfigMap, {}, ignorePathMappings)
 
     if (verbose) {
