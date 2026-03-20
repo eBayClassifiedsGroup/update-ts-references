@@ -20,6 +20,7 @@ const rootFolderYarnCreate = path.join(
 const rootFolderPnpm = path.join(process.cwd(), 'test-run', 'pnpm');
 const rootFolderTsPaths = path.join(process.cwd(), 'test-run', 'ts-paths');
 const rootFolderTsPathsIgnore = path.join(process.cwd(), 'test-run', 'ts-paths-ignore');
+const rootFolderPruneMinimal = path.join(process.cwd(), 'test-run', 'prune-minimal');
 
 const rootFolderLerna = path.join(process.cwd(), 'test-run', 'lerna');
 const rootFolderConfigName = path.join(
@@ -44,6 +45,33 @@ const rootTsConfig = [
             },
             {
                 path: 'shared/workspace-d',
+            },
+        ],
+    },
+];
+
+const rootTsConfigWithRootDependencies = [
+    '.',
+    {
+        compilerOptions: {
+            composite: true,
+        },
+        files: [],
+        references: [
+            {
+                path: 'workspace-a',
+            },
+            {
+                path: 'workspace-b',
+            },
+            {
+                path: 'shared/workspace-c',
+            },
+            {
+                path: 'shared/workspace-d',
+            },
+            {
+                path: 'utils/foos/foo-a',
             },
         ],
     },
@@ -133,8 +161,8 @@ const tsconfigs = [
     fooBTsConfig,
 ];
 
-const tsconfigsIncludingPrepend = [
-    rootTsConfig,
+const tsconfigsIncludingPrependWithRootDependencies = [
+    rootTsConfigWithRootDependencies,
     [
         './workspace-a',
         {
@@ -203,7 +231,7 @@ test('avoid adding an empty compilerOptions', async () => {
 test('Support yarn and npm workspaces', async () => {
     await setup(rootFolderYarn);
 
-    tsconfigsIncludingPrepend.forEach((tsconfig) => {
+    tsconfigsIncludingPrependWithRootDependencies.forEach((tsconfig) => {
         const [configPath, config] = tsconfig;
 
         expect(
@@ -216,10 +244,48 @@ test('Support yarn and npm workspaces', async () => {
         parse(fs.readFileSync(path.join(rootFolderYarn, 'tsconfig.json')).toString()).references
     ).toEqual([
         { path: 'workspace-a' },
+        { path: 'workspace-b' },
+        { path: 'shared/workspace-c' },
         { path: 'shared/workspace-d' },
+        { path: 'utils/foos/foo-a' },
     ]);
     // still has the comment
     expect(fs.readFileSync(path.join(rootFolderYarn, 'tsconfig.json')).toString()).toMatch(/\/\* Basic Options \*\//)
+});
+
+test('Prune root references when the root package does not explicitly keep them', async () => {
+    await setup(rootFolderPruneMinimal);
+
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderPruneMinimal, 'tsconfig.json')).toString())
+    ).toEqual({
+        files: [],
+        compilerOptions: {
+            composite: true,
+        },
+        references: [
+            {
+                path: 'workspace-a',
+            },
+        ],
+    });
+
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderPruneMinimal, 'workspace-a', 'tsconfig.json')).toString())
+    ).toEqual({
+        compilerOptions,
+        references: [
+            {
+                path: '../workspace-b',
+            },
+        ],
+    });
+
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderPruneMinimal, 'workspace-b', 'tsconfig.json')).toString())
+    ).toEqual({
+        compilerOptions,
+    });
 });
 
 test('Support lerna', async () => {
@@ -267,12 +333,26 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "workspace-a": ["workspace-a/src"] }
+                paths: {
+                    "workspace-a": ["workspace-a/src"],
+                    "workspace-b": ["workspace-b"],
+                    "foo-a": ["utils/foos/foo-a/src"],
+                    "foo-b": ["utils/foos/foo-b/src"]
+                }
             },
             files: [],
             references: [
                 {
                     path: 'workspace-a',
+                },
+                {
+                    path: 'workspace-b',
+                },
+                {
+                    path: 'utils/foos/foo-a',
+                },
+                {
+                    path: 'utils/foos/foo-b',
                 },
             ],
         },

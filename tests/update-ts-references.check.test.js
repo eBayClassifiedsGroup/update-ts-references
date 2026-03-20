@@ -49,6 +49,33 @@ const rootTsConfig = [
     },
 ];
 
+const rootTsConfigWithRootDependencies = [
+    '.',
+    {
+        compilerOptions: {
+            composite: true,
+        },
+        files: [],
+        references: [
+            {
+                path: 'workspace-a',
+            },
+            {
+                path: 'workspace-b',
+            },
+            {
+                path: 'shared/workspace-c',
+            },
+            {
+                path: 'shared/workspace-d',
+            },
+            {
+                path: 'utils/foos/foo-a',
+            },
+        ],
+    },
+];
+
 const wsATsConfig = [
     './workspace-a',
     {
@@ -133,6 +160,16 @@ const tsconfigs = [
     fooBTsConfig,
 ];
 
+const tsconfigsWithRootDependencies = [
+    rootTsConfigWithRootDependencies,
+    wsATsConfig,
+    wsBTsConfig,
+    wsCTsConfig,
+    wsDTsConfig,
+    fooATsConfig,
+    fooBTsConfig,
+];
+
 
 test('Detect changes in references with the --check option', async () => {
     let errorCode = 0;
@@ -169,7 +206,7 @@ test('No changes in references detected with the --check option', async () => {
 
     expect(errorCode).toBe(0);
 
-    tsconfigs.forEach((tsconfig) => {
+    tsconfigsWithRootDependencies.forEach((tsconfig) => {
         const [configPath, config] = tsconfig;
 
         expect(

@@ -1,12 +1,12 @@
 {
   "name": "update-ts-references",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Updates TypeScript references automatically while using workspaces",
   "bin": "src/index.js",
   "scripts": {
     "lint": "eslint src tests",
-    "test": "scripts/prepareTests.sh && vitest run",
-    "vitest": "vitest run"
+    "test": "scripts/prepareTests.sh && vitest run --no-file-parallelism",
+    "vitest": "vitest run --no-file-parallelism"
   },
   "contributors": [
     {
