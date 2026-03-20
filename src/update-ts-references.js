@@ -340,6 +340,9 @@ const execute = async ({
     let rootPaths = [];
     let tsconfigMap = {}
     let jsconfigMap = {}
+    const referencesMap = {}
+    const referencedPackageNames = new Set()
+    const rootReferenceCandidates = []
     packagesMap.forEach((packageEntry, packageName) => {
         const detectedConfig = detectTSConfig(packageEntry.packageDir, configName, packageEntry.hasTsEntry && createTsConfig, cwd)
 
@@ -379,11 +382,11 @@ const execute = async ({
         const detectedConfig = tsconfigMap[packageName]?.detectedConfig
 
         if (detectedConfig) {
-            rootReferences.push({
+            rootReferenceCandidates.push(ensurePosixPathStyle({
                 name: packageName,
                 path: path.join(path.relative(cwd, packageEntry.packageDir), detectedConfig !== TSCONFIG_JSON ? detectedConfig : ''),
                 folder: path.relative(cwd, packageEntry.packageDir),
-            });
+            }));
             const references = (getReferencesFromDependencies(
                 configName,
                 packageEntry,
@@ -391,6 +394,8 @@ const execute = async ({
                 packagesMap,
                 verbose
             ) || []).map(ensurePosixPathStyle);
+            referencesMap[packageName] = references
+            references.forEach(({ name }) => referencedPackageNames.add(name))
 
             const paths = getPathsFromReferences(references, tsconfigMap, jsconfigMap, ignorePathMappings)
 
@@ -414,16 +419,11 @@ const execute = async ({
                 // eslint-disable-next-line no-console
                 console.log(`NO ${configName === TSCONFIG_JSON ? configName : `${configName} nor ${TSCONFIG_JSON}`} for ${packageName}`);
             }
-            rootPaths.push({
-                name: packageName,
-                path: path.relative(cwd, packageEntry.packageDir),
-                folder: path.relative(cwd, packageEntry.packageDir),
-            });
         }
     });
 
-    rootReferences = (rootReferences || []).map(ensurePosixPathStyle);
-    rootPaths = getPathsFromReferences((rootReferences || []).map(ensurePosixPathStyle), tsconfigMap, {}, ignorePathMappings)
+    rootReferences = rootReferenceCandidates.filter(({ name }) => !referencedPackageNames.has(name));
+    rootPaths = getPathsFromReferences(rootReferences, tsconfigMap, {}, ignorePathMappings)
 
     if (verbose) {
         console.log('rootReferences', rootReferences);

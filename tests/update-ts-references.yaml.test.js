@@ -22,19 +22,7 @@ const rootTsConfig = [
                 path: 'workspace-a',
             },
             {
-                path: 'workspace-b',
-            },
-            {
-                path: 'shared/workspace-c',
-            },
-            {
                 path: 'shared/workspace-d',
-            },
-            {
-                path: 'utils/foos/foo-a',
-            },
-            {
-                path: 'utils/foos/foo-b',
             },
         ],
     },
@@ -184,15 +172,12 @@ test('receive options via the config', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths:{"workspace-a": ["workspace-a/src"],"workspace-b": ["workspace-b/src"]}
+                paths:{"workspace-a": ["workspace-a/src"]}
 },
             files: [],
             references: [
                 {
                     path: 'workspace-a/tsconfig.dev.json',
-                },
-                {
-                    path: 'workspace-b/tsconfig.dev.json',
                 },
             ],
         },
@@ -241,15 +226,12 @@ test('receive options for a different usecase', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths:{"workspace-a": ["workspace-a/src"],"workspace-b": ["workspace-b/src"]}
+                paths:{"workspace-a": ["workspace-a/src"]}
             },
             files: [],
             references: [
                 {
                     path: 'workspace-a/tsconfig.dev.json',
-                },
-                {
-                    path: 'workspace-b/tsconfig.dev.json',
                 },
             ],
         },
