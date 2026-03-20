@@ -43,19 +43,7 @@ const rootTsConfig = [
                 path: 'workspace-a',
             },
             {
-                path: 'workspace-b',
-            },
-            {
-                path: 'shared/workspace-c',
-            },
-            {
                 path: 'shared/workspace-d',
-            },
-            {
-                path: 'utils/foos/foo-a',
-            },
-            {
-                path: 'utils/foos/foo-b',
             },
         ],
     },
@@ -305,18 +293,12 @@ test('No changes paths detected with the --check option', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "foo-b": ["utils/foos/foo-b/src"] }
+                paths: undefined
             },
             files: [],
             references: [
                 {
                     path: 'workspace-a',
-                },
-                {
-                    path: 'workspace-b',
-                },
-                {
-                    path: 'utils/foos/foo-a',
                 },
             ],
         },
@@ -362,5 +344,3 @@ test('No changes paths detected with the --check option', async () => {
         ).toEqual(config);
     });
 });
-
-

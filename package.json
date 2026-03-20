@@ -1,12 +1,12 @@
 {
   "name": "update-ts-references",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Updates TypeScript references automatically while using workspaces",
   "bin": "src/index.js",
   "scripts": {
     "lint": "eslint src tests",
-    "test": "scripts/prepareTests.sh && jest tests",
-    "jest": "jest tests"
+    "test": "scripts/prepareTests.sh && vitest run",
+    "vitest": "vitest run"
   },
   "contributors": [
     {
@@ -20,19 +20,20 @@
   ],
   "dependencies": {
     "comment-json": "^4.2.3",
-    "glob": "^7.1.6",
-    "js-yaml": "^4.0.0",
-    "minimatch": "^3.0.5",
+    "fast-glob": "^3.3.3",
+    "js-yaml": "^4.1.1",
+    "minimatch": "^9.0.5",
     "minimist": "^1.2.5"
   },
   "devDependencies": {
-    "eslint": "^7.7.0",
-    "eslint-plugin-jest": "^23.20.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3",
     "exec-sh": "^0.3.4",
-    "jest": "^26.4.0"
+    "vite": "^8.0.1",
+    "vitest": "^4.1.0"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.13.0"
   },
   "license": "MIT",
   "keywords": [
@@ -60,12 +61,5 @@
     "url": "https://github.com/eBayClassifiedsGroup/update-ts-references/issues"
   },
   "homepage": "https://github.com/eBayClassifiedsGroup/update-ts-references",
-  "jest": {
-    "verbose": true,
-    "modulePathIgnorePatterns": [
-      "<rootDir>/test-scenarios/",
-      "<rootDir>/test-run/"
-    ]
-  },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

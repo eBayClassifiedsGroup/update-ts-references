@@ -43,19 +43,7 @@ const rootTsConfig = [
                 path: 'workspace-a',
             },
             {
-                path: 'workspace-b',
-            },
-            {
-                path: 'shared/workspace-c',
-            },
-            {
                 path: 'shared/workspace-d',
-            },
-            {
-                path: 'utils/foos/foo-a',
-            },
-            {
-                path: 'utils/foos/foo-b',
             },
         ],
     },
@@ -178,9 +166,6 @@ test('avoid adding an empty compilerOptions', async () => {
                 {
                     path: 'workspace-a',
                 },
-                {
-                    path: 'workspace-b',
-                },
             ],
         },
     ];
@@ -227,6 +212,12 @@ test('Support yarn and npm workspaces', async () => {
 
 
     });
+    expect(
+        parse(fs.readFileSync(path.join(rootFolderYarn, 'tsconfig.json')).toString()).references
+    ).toEqual([
+        { path: 'workspace-a' },
+        { path: 'shared/workspace-d' },
+    ]);
     // still has the comment
     expect(fs.readFileSync(path.join(rootFolderYarn, 'tsconfig.json')).toString()).toMatch(/\/\* Basic Options \*\//)
 });
@@ -276,21 +267,12 @@ test('create paths mappings ', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "foo-a": ["utils/foos/foo-a/src"], "foo-b": ["utils/foos/foo-b/src"], "workspace-a": ["workspace-a/src"], "workspace-b": ["workspace-b"] }
+                paths: { "workspace-a": ["workspace-a/src"] }
             },
             files: [],
             references: [
                 {
                     path: 'workspace-a',
-                },
-                {
-                    path: 'workspace-b',
-                },
-                {
-                    path: 'utils/foos/foo-a',
-                },
-                {
-                    path: 'utils/foos/foo-b',
                 },
             ],
         },
@@ -373,21 +355,12 @@ test('create paths mappings with ignorePathMappings', async () => {
         {
             compilerOptions: {
                 composite: true,
-                paths: { "foo-a": ["utils/foos/foo-a/src"], "foo-b": ["utils/foos/foo-b/src"], "workspace-b": ["workspace-b"] }
+                paths: undefined
             },
             files: [],
             references: [
                 {
                     path: 'workspace-a',
-                },
-                {
-                    path: 'workspace-b',
-                },
-                {
-                    path: 'utils/foos/foo-a',
-                },
-                {
-                    path: 'utils/foos/foo-b',
                 },
             ],
         },
@@ -471,9 +444,6 @@ test('Test create tsconfig', async () => {
             references: [
                 {
                     path: 'workspace-a',
-                },
-                {
-                    path: 'workspace-b',
                 }
             ],
         },
@@ -565,19 +535,7 @@ test('Support custom tsconfig names', async () => {
                         path: 'workspace-a/tsconfig.dev.json',
                     },
                     {
-                        path: 'workspace-b/tsconfig.dev.json',
-                    },
-                    {
-                        path: 'shared/workspace-c/tsconfig.dev.json',
-                    },
-                    {
                         path: 'shared/workspace-d/tsconfig.dev.json',
-                    },
-                    {
-                        path: 'utils/foos/foo-a/tsconfig.dev.json',
-                    },
-                    {
-                        path: 'utils/foos/foo-b',
                     },
                 ],
             },
