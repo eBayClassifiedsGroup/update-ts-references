@@ -9,3 +9,7 @@ test-scenarios
 *.log
 .vscode
 .eslintrc.js
+.yarn
+.yarnrc.yml
+eslint.config.js
+vitest.config.js
