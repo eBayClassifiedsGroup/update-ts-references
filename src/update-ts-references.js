@@ -1,8 +1,8 @@
-const glob = require('glob');
+const fastGlob = require('fast-glob');
 const path = require('path');
 const fs = require('fs');
 const yaml = require('js-yaml');
-const minimatch = require('minimatch');
+const { minimatch } = require('minimatch');
 const {
     parse,
     stringify,
@@ -41,19 +41,7 @@ const getAllPackageJsons = async (workspaces, cwd) => {
     });
 
     return Promise.all(
-        workspaceGlobs.map(
-            (workspace) =>
-                new Promise((resolve, reject) => {
-                    glob(`${workspace}/${PACKAGE_JSON}`, { cwd }, (error, files) => {
-                        if (error) {
-                            reject(error);
-                        }
-                        resolve(files);
-                    });
-                }),
-
-            []
-        )
+        workspaceGlobs.map((workspace) => fastGlob(`${workspace}/${PACKAGE_JSON}`, { cwd, onlyFiles: true }))
     )
         .then((allPackages) =>
             allPackages.reduce(
@@ -216,7 +204,7 @@ const updateTsConfig = (
             if (createPathMappings)
                 assert.deepEqual(JSON.parse(JSON.stringify(config?.compilerOptions?.paths ?? {})), paths);
             isEqual = true;
-        } catch (e) {
+        } catch {
             // ignore me
         }
         if (!isEqual) {
@@ -243,7 +231,7 @@ const updateTsConfig = (
     } catch (error) {
         console.error(`could not read ${tsconfigFilePath}`, error);
         if (strict)
-            throw new Error('Expect always a tsconfig.json in the package directory while running in strict mode')
+            throw new Error('Expect always a tsconfig.json in the package directory while running in strict mode', { cause: error })
     }
 };
 
@@ -269,7 +257,6 @@ const execute = async ({
     ...configurable
 }) => {
     let changesCount = 0;
-    // eslint-disable-next-line no-console
     console.log('updating tsconfigs');
     const packageJson = require(path.join(cwd, PACKAGE_JSON));
 
@@ -336,8 +323,6 @@ const execute = async ({
         console.log('packagesMap', packagesMap);
     }
 
-    let rootReferences = [];
-    let rootPaths = [];
     let tsconfigMap = {}
     let jsconfigMap = {}
     const referencesMap = {}
@@ -416,14 +401,13 @@ const execute = async ({
         } else {
             const detectedJsConfig = jsconfigMap[packageName]?.detectedConfig
             if (!detectedJsConfig) {
-                // eslint-disable-next-line no-console
                 console.log(`NO ${configName === TSCONFIG_JSON ? configName : `${configName} nor ${TSCONFIG_JSON}`} for ${packageName}`);
             }
         }
     });
 
-    rootReferences = rootReferenceCandidates.filter(({ name }) => !referencedPackageNames.has(name));
-    rootPaths = getPathsFromReferences(rootReferences, tsconfigMap, {}, ignorePathMappings)
+    const rootReferences = rootReferenceCandidates.filter(({ name }) => !referencedPackageNames.has(name));
+    const rootPaths = getPathsFromReferences(rootReferences, tsconfigMap, {}, ignorePathMappings)
 
     if (verbose) {
         console.log('rootReferences', rootReferences);
