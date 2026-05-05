@@ -334,10 +334,10 @@ test('create paths mappings ', async () => {
             compilerOptions: {
                 composite: true,
                 paths: {
-                    "workspace-a": ["workspace-a/src"],
-                    "workspace-b": ["workspace-b"],
-                    "foo-a": ["utils/foos/foo-a/src"],
-                    "foo-b": ["utils/foos/foo-b/src"]
+                    "workspace-a": ["./workspace-a/src"],
+                    "workspace-b": ["./workspace-b"],
+                    "foo-a": ["./utils/foos/foo-a/src"],
+                    "foo-b": ["./utils/foos/foo-b/src"]
                 }
             },
             files: [],
