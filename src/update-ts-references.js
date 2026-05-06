@@ -183,16 +183,11 @@ const getReferencesFromDependencies = (
         .sort((refA, refB) => (refA.path > refB.path ? 1 : -1));
 };
 
-const ensureLeadingDotSlash=(p)=> {
-    if (!p || path.isAbsolute(p) || p.startsWith('./') || p.startsWith('../')) {
+const ensureLeadingDotSlash = (p) => {
+    if (p == null || path.isAbsolute(p) || p.startsWith('.' + path.sep) || p.startsWith('..' + path.sep)) {
         return p;
     }
-
-    if (p.length === 0) {
-        return '.'
-    }
-
-    return './' + p;
+    return p.length === 0 ? '.' : '.' + path.sep + p;
 }
 
 const ensurePosixPathStyle = (reference) => ({
@@ -454,4 +449,4 @@ const execute = async ({
     return changesCount;
 };
 
-module.exports = { execute, defaultOptions };
+module.exports = { execute, defaultOptions, ensureLeadingDotSlash };
