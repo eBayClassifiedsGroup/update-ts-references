@@ -1,6 +1,6 @@
 {
   "name": "update-ts-references",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "description": "Updates TypeScript references automatically while using workspaces",
   "bin": "src/index.js",
   "scripts": {

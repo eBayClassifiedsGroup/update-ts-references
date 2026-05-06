@@ -153,7 +153,7 @@ const getReferencesFromDependencies = (
         .reduce((referenceArray, dependency) => {
             if (packagesMap.has(dependency)) {
                 const { packageDir: dependencyDir } = packagesMap.get(dependency);
-                const relativePath = path.relative(packageDir, dependencyDir);
+                const relativePath = ensureLeadingDotSlash(path.relative(packageDir, dependencyDir));
                 const detectedConfig = detectTSConfig(dependencyDir, configName)
                 if (detectedConfig !== null) {
                     return [
@@ -182,6 +182,13 @@ const getReferencesFromDependencies = (
         }, [])
         .sort((refA, refB) => (refA.path > refB.path ? 1 : -1));
 };
+
+const ensureLeadingDotSlash = (p) => {
+    if (p == null || path.isAbsolute(p) || p.startsWith('.' + path.sep) || p.startsWith('..' + path.sep)) {
+        return p;
+    }
+    return p.length === 0 ? '.' : '.' + path.sep + p;
+}
 
 const ensurePosixPathStyle = (reference) => ({
     ...reference,
@@ -381,8 +388,8 @@ const execute = async ({
         if (detectedConfig) {
             rootReferenceCandidates.push(ensurePosixPathStyle({
                 name: packageName,
-                path: path.join(path.relative(cwd, packageEntry.packageDir), detectedConfig !== TSCONFIG_JSON ? detectedConfig : ''),
-                folder: path.relative(cwd, packageEntry.packageDir),
+                path: path.join(ensureLeadingDotSlash(path.relative(cwd, packageEntry.packageDir)), detectedConfig !== TSCONFIG_JSON ? detectedConfig : ''),
+                folder: ensureLeadingDotSlash(path.relative(cwd, packageEntry.packageDir)),
             }));
             const references = (getReferencesFromDependencies(
                 configName,
@@ -442,4 +449,4 @@ const execute = async ({
     return changesCount;
 };
 
-module.exports = { execute, defaultOptions };
+module.exports = { execute, defaultOptions, ensureLeadingDotSlash };
