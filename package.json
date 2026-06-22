@@ -2,7 +2,9 @@
   "name": "update-ts-references",
   "version": "6.1.0",
   "description": "Updates TypeScript references automatically while using workspaces",
-  "bin": "src/index.js",
+  "bin": {
+    "update-ts-references": "src/index.js"
+  },
   "scripts": {
     "lint": "eslint src tests",
     "test": "scripts/prepareTests.sh && vitest run --no-file-parallelism",
@@ -56,7 +58,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/eBayClassifiedsGroup/update-ts-references.git"
+    "url": "git+https://github.com/eBayClassifiedsGroup/update-ts-references.git"
   },
   "bugs": {
     "url": "https://github.com/eBayClassifiedsGroup/update-ts-references/issues"
