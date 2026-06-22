@@ -229,6 +229,11 @@ test('avoid adding an empty compilerOptions', async () => {
 })
 
 test('Support yarn and npm workspaces', async () => {
+    const rootTsconfigPath = path.join(rootFolderYarn, 'tsconfig.json');
+    const workspaceATsconfigPath = path.join(rootFolderYarn, 'workspace-a', 'tsconfig.json');
+    const originalRootTsconfig = fs.readFileSync(rootTsconfigPath).toString();
+    const originalWorkspaceATsconfig = fs.readFileSync(workspaceATsconfigPath).toString();
+
     await setup(rootFolderYarn);
 
     tsconfigsIncludingPrependWithRootDependencies.forEach((tsconfig) => {
@@ -250,7 +255,11 @@ test('Support yarn and npm workspaces', async () => {
         { path: 'utils/foos/foo-a' },
     ]);
     // still has the comment
-    expect(fs.readFileSync(path.join(rootFolderYarn, 'tsconfig.json')).toString()).toMatch(/\/\* Basic Options \*\//)
+    const updatedRootTsconfig = fs.readFileSync(rootTsconfigPath).toString();
+    const updatedWorkspaceATsconfig = fs.readFileSync(workspaceATsconfigPath).toString();
+    expect(updatedRootTsconfig).toMatch(/\/\* Basic Options \*\//)
+    expect(/\r?\n$/.test(updatedRootTsconfig)).toBe(/\r?\n$/.test(originalRootTsconfig));
+    expect(/\r?\n$/.test(updatedWorkspaceATsconfig)).toBe(/\r?\n$/.test(originalWorkspaceATsconfig));
 });
 
 test('Prune root references when the root package does not explicitly keep them', async () => {

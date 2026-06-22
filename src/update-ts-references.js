@@ -6,8 +6,8 @@ const { minimatch } = require('minimatch');
 const {
     parse,
     stringify,
-    assign
 } = require('comment-json')
+const { modify, applyEdits } = require('jsonc-parser');
 const assert = require('assert').strict;
 
 const PACKAGE_JSON = 'package.json';
@@ -196,6 +196,24 @@ const ensurePosixPathStyle = (reference) => ({
     folder: reference.folder?.split(path.sep).join(path.posix.sep),
 });
 
+const detectEol = (fileContent) => (fileContent.includes('\r\n') ? '\r\n' : '\n');
+
+const applyJsoncUpdate = (fileContent, path, value, eol) => applyEdits(
+    fileContent,
+    modify(
+        fileContent,
+        path,
+        value,
+        {
+            formattingOptions: {
+                insertSpaces: true,
+                tabSize: 2,
+                eol,
+            }
+        }
+    )
+);
+
 const updateTsConfig = (
     strict,
     configName,
@@ -208,7 +226,10 @@ const updateTsConfig = (
     const tsconfigFilePath = path.join(packageDir, configName);
 
     try {
-        const config = parse(fs.readFileSync(tsconfigFilePath).toString());
+        const fileContent = fs.readFileSync(tsconfigFilePath).toString();
+        const hasTrailingNewline = /\r?\n$/.test(fileContent);
+        const eol = detectEol(fileContent);
+        const config = parse(fileContent);
 
         const currentReferences = config.references || [];
 
@@ -228,21 +249,35 @@ const updateTsConfig = (
         }
         if (!isEqual) {
             if (check === false) {
-
-                const compilerOptions = config?.compilerOptions ?? {};
-                if (createPathMappings && paths)
-                    assign(compilerOptions,
-                        paths && Object.keys(paths).length > 0 ? {
-                            paths
-                        } : { paths: undefined })
-
-                const newTsConfig = assign(config,
-                    Object.keys(compilerOptions).length > 0 ? {
-                        compilerOptions,
-                        references: mergedReferences.length ? mergedReferences : undefined,
-                    } : { references: mergedReferences.length ? mergedReferences : undefined, }
+                let updatedContent = applyJsoncUpdate(
+                    fileContent,
+                    ['references'],
+                    mergedReferences.length ? mergedReferences : undefined,
+                    eol
                 );
-                fs.writeFileSync(tsconfigFilePath, stringify(newTsConfig, null, 2) + '\n');
+
+                if (createPathMappings) {
+                    updatedContent = applyJsoncUpdate(
+                        updatedContent,
+                        ['compilerOptions', 'paths'],
+                        paths && Object.keys(paths).length > 0 ? paths : undefined,
+                        eol
+                    );
+
+                    const updatedConfig = parse(updatedContent);
+                    if (updatedConfig.compilerOptions && Object.keys(updatedConfig.compilerOptions).length === 0) {
+                        updatedContent = applyJsoncUpdate(updatedContent, ['compilerOptions'], undefined, eol);
+                    }
+                }
+
+                if (hasTrailingNewline && !updatedContent.endsWith('\n')) {
+                    updatedContent += eol;
+                }
+                if (!hasTrailingNewline) {
+                    updatedContent = updatedContent.replace(/\r?\n$/, '');
+                }
+
+                fs.writeFileSync(tsconfigFilePath, updatedContent);
             }
             return 1;
         }
